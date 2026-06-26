@@ -1,0 +1,61 @@
+@startuml component-architecture
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ComponentBackgroundColor #F7F4EB
+skinparam ComponentBorderColor #022C22
+skinparam ComponentFontColor #022C22
+skinparam ArrowColor #10B981
+
+title Diagram Arsitektur Komponen (Laravel + React + Inertia.js)
+
+package "Frontend (React Single Page Application)" {
+    component "React Pages & Components\n(JSX/TSX Views)" as ReactUI
+}
+
+package "Inertia.js Protocol" {
+    component "Inertia Bridge\n(JSON HTTP Protocol)" as InertiaBridge
+}
+
+package "Backend (Laravel Monolith)" {
+    component "Laravel Router\n(routes/web.php)" as Router
+    
+    component "Controllers\n(Http/Controllers/)" as Controllers
+    
+    component "Form Requests\n(Http/Requests/)" as Requests
+    
+    component "Policies\n(Policies/)" as Policies
+    
+    component "Services / Actions\n(Services/ & Actions/)" as Services
+    
+    component "Eloquent Models\n(Models/)" as Models
+}
+
+database "MySQL Database" as MySQL
+
+folder "Laravel Storage\n(storage/app/public/)" as Storage
+
+' Alur Request & Response
+ReactUI -[#10B981]-> InertiaBridge : 1. Mengirim aksi / navigasi (Inertia.visit)
+InertiaBridge -[#10B981]-> Router : 2. Menyalurkan HTTP Request (X-Inertia)
+Router -[#10B981]-> Controllers : 3. Memetakan rute ke metode controller
+
+Controllers -[#10B981]-> Requests : 4. Memvalidasi data input masuk
+Requests -[#10B981]-> Controllers : Validasi lolos / gagal (auto-redirect)
+
+Controllers -[#10B981]-> Policies : 5. Memeriksa otorisasi hak akses (Breeze/Role)
+Policies -[#10B981]-> Controllers : Diizinkan / Ditolak (403 Forbidden)
+
+Controllers -[#10B981]-> Services : 6. Mengeksekusi logika bisnis kompleks (DB Transaction)
+Services -[#10B981]-> Models : 7. Memanipulasi objek data domain
+Controllers -[#10B981]-> Models : Akses ORM langsung (untuk kueri sederhana)
+
+Models -[#10B981]-> MySQL : 8. Sinkronisasi data persistensi (SQL Query)
+MySQL -[#10B981]-> Models : Mengembalikan baris database
+
+Services -[#10B981]-> Storage : 9. Menyimpan / menghapus file gambar fisik
+
+' Alur Response Balik
+Controllers -[#10B981]-> InertiaBridge : 10. Mengirim Inertia::render(Page, Props)
+InertiaBridge -[#10B981]-> ReactUI : 11. Memperbarui props halaman secara reaktif tanpa reload penuh
+
+@enduml

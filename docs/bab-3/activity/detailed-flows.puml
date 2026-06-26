@@ -1,0 +1,695 @@
+@startuml detailed-activity-registration
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 1. Diagram Aktivitas Detail - Registrasi Pelanggan
+
+|Pelanggan|
+start
+:Membuka halaman Registrasi;
+:Menginput data Nama, Email, Telepon,\nAlamat, Password, & Konfirmasi Password;
+:Menekan tombol "Daftar";
+
+|Sistem (Laravel Backend)|
+:Menerima Form Request Registrasi;
+:Memvalidasi data input;
+if (Apakah validasi sukses?) then (Tidak)
+    :Mengirim respon error validasi\n(misal: format email salah, password terlalu pendek);
+    |Pelanggan|
+    :Melihat pesan error & memperbaiki input;
+    stop
+else (Ya)
+endif
+
+:Memeriksa apakah email sudah terdaftar;
+if (Apakah email unik?) then (Tidak)
+    :Mengirim respon error\n"Email sudah terdaftar";
+    |Pelanggan|
+    :Melihat pesan error & mengganti email;
+    stop
+else (Ya)
+endif
+
+:Meng-hash password menggunakan bcrypt;
+:Menyimpan data pengguna baru ke database\n(role = 'customer', is_active = true);
+:Membuat sesi login otomatis (*auto-authenticate*);
+:Mengarahkan pengguna ke halaman Beranda\ndengan pesan sukses;
+
+|Pelanggan|
+:Menerima tampilan Beranda dengan kondisi login;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-login
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 2. Diagram Aktivitas Detail - Login Pengguna
+
+|Pengguna|
+start
+:Membuka halaman Login;
+:Menginput Email & Password;
+:Menekan tombol "Masuk";
+
+|Sistem (Laravel Backend)|
+:Menerima Form Request Login;
+:Memeriksa kecocokan email & hash password;
+if (Kredensial cocok?) then (Tidak)
+    :Mengirim respon error\n"Kredensial tidak cocok";
+    |Pengguna|
+    :Melihat pesan kesalahan & menginput ulang;
+    stop
+else (Ya)
+endif
+
+:Memeriksa status keaktifan akun (is_active);
+if (Apakah is_active == true?) then (Tidak)
+    :Mengeluarkan sesi (logout);\nMengarahkan ke login dengan pesan error\n"Akun dinonaktifkan";
+    |Pengguna|
+    :Melihat pesan penonaktifan;
+    stop
+else (Ya)
+endif
+
+:Membuat sesi login (*session token*);
+:Memeriksa peran (*role*) pengguna;
+if (Role == 'admin') then (Ya)
+    :Mengarahkan ke Dashboard Admin;
+else if (Role == 'operator') then (Ya)
+    :Mengarahkan ke Dashboard Operator;
+else (Customer)
+    :Mengarahkan ke Beranda / Halaman Sebelumnya;
+endif
+
+|Pengguna|
+:Menerima tampilan halaman tujuan sesuai hak akses;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-catalog-search
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 3. Diagram Aktivitas Detail - Pencarian & Penyaringan Produk
+
+|Pelanggan|
+start
+:Mengakses halaman Katalog ("Koleksi");
+
+|Sistem (Laravel & React)|
+:Melakukan query ke tabel `products`\n(is_active = true & deleted_at = null);
+:Menampilkan daftar seluruh rangkaian bunga;
+
+|Pelanggan|
+split
+    :Mengetikkan kata kunci di kolom pencarian;
+split again
+    :Memilih salah satu Kategori Bunga;
+split again
+    :Mengubah opsi pengurutan (terbaru / harga);
+end split
+
+|Sistem (Laravel & React)|
+:Melakukan filter data secara dinamis;
+if (Apakah produk ditemukan?) then (Ya)
+    :Menampilkan daftar produk terfilter\npada kartu grid;
+else (Tidak)
+    :Menampilkan halaman kosong (*Empty State*)\n"Produk tidak ditemukan";
+endif
+
+|Pelanggan|
+:Melihat hasil pencarian/penyaringan;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-add-to-cart
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 4. Diagram Aktivitas Detail - Memasukkan Produk Ke Keranjang
+
+|Pelanggan|
+start
+:Membuka halaman Detail Produk;
+:Menentukan jumlah (*quantity*) bunga;
+:Menekan tombol "Masukkan Ke Keranjang";
+
+|Sistem (Laravel Backend)|
+if (Apakah pengguna sudah login?) then (Tidak)
+    :Mengalihkan ke halaman Login;
+    |Pelanggan|
+    :Melakukan login;
+    stop
+else (Ya)
+endif
+
+:Memvalidasi input quantity;
+:Mengambil data stok produk aktual dari database;
+if (Apakah quantity <= stok?) then (Tidak)
+    :Mengembalikan respon dengan pesan error\n"Stok tidak mencukupi";
+    |Pelanggan|
+    :Melihat pesan error & mengurangi jumlah;
+    stop
+else (Ya)
+endif
+
+:Membuka transaksi database;
+:Mencari keranjang aktif milik pengguna;
+if (Apakah keranjang sudah ada?) then (Tidak)
+    :Membuat keranjang baru (`carts`);
+else (Ya)
+endif
+
+:Memeriksa apakah produk sudah ada di keranjang;
+if (Apakah produk duplikat?) then (Ya)
+    :Menjumlahkan quantity lama dengan baru;\nMenghitung subtotal baru;
+    :Memperbarui baris `cart_items`;
+else (Tidak)
+    :Membuat baris baru di `cart_items`;
+endif
+:Komitmen Transaksi;
+:Mengarahkan pelanggan ke halaman Keranjang;
+
+|Pelanggan|
+:Melihat daftar barang belanjaan terupdate;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-update-cart
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 5. Diagram Aktivitas Detail - Memperbarui & Mengosongkan Keranjang
+
+|Pelanggan|
+start
+:Mengakses halaman Keranjang Belanja;
+
+split
+    :Mengubah jumlah item (stepper +/-);
+    |Sistem (Laravel Backend)|
+    :Memeriksa kepemilikan item keranjang;
+    if (Apakah milik user bersangkutan?) then (Tidak)
+        :Aksi ilegal, aborsi (403 Forbidden);
+        stop
+    else (Ya)
+    endif
+    :Memvalidasi stok produk;
+    if (Apakah stok cukup?) then (Ya)
+        :Update kuantitas & kalkulasi subtotal;
+        :Kirim flash session sukses;
+    else (Tidak)
+        :Kirim flash session error stok;
+    fi
+split again
+    :Menekan tombol Hapus Item (ikon tempat sampah);
+    |Sistem (Laravel Backend)|
+    :Memeriksa kepemilikan item;
+    :Menghapus baris item dari `cart_items`;
+    :Kirim flash session sukses;
+split again
+    :Menekan tombol "Kosongkan Keranjang";
+    |Sistem (Laravel Backend)|
+    :Menghapus seluruh item terkait `cart_id`;
+    :Kirim flash session sukses;
+end split
+
+|Sistem (Laravel Backend)|
+:Memuat ulang data keranjang terupdate;\nMenghitung total tagihan akhir;
+:Merender ulang halaman Keranjang;
+
+|Pelanggan|
+:Melihat tampilan keranjang yang telah diperbarui;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-checkout
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 6. Diagram Aktivitas Detail - Proses Checkout Pesanan
+
+|Pelanggan|
+start
+:Menekan tombol "Lanjutkan ke Checkout" di Keranjang;
+
+|Sistem (Laravel Backend)|
+:Memeriksa apakah keranjang kosong;
+if (Apakah kosong?) then (Ya)
+    :Mengalihkan ke katalog dengan pesan error;
+    stop
+else (Tidak)
+endif
+
+:Membuka halaman form Checkout;
+
+|Pelanggan|
+:Mengisi Nama Penerima, Telepon Penerima, Alamat,\nTanggal Kirim, Pesan Kartu, & Catatan;
+:Menekan tombol "Konfirmasi Pesanan";
+
+|Sistem (Laravel Backend)|
+:Memulai Transaksi Database (`DB::transaction`);
+:Mengunci baris produk terkait (`lockForUpdate`);
+:Memvalidasi tanggal pengiriman (tidak boleh di masa lalu);
+:Memeriksa ulang ketersediaan stok fisik produk;
+
+if (Apakah stok cukup?) then (Tidak)
+    :Membatalkan transaksi (*rollback*);\nMengarahkan ke keranjang dengan pesan kesalahan stok;
+    |Pelanggan|
+    :Kembali ke Keranjang untuk penyesuaian;
+    stop
+else (Ya)
+endif
+
+:Menghitung total biaya (Subtotal + Flat Ongkir Rp25.000);
+:Membuat Nomor Pesanan Unik (`LJ-YYYYMMDD-XXXX`);
+:Menyimpan pesanan baru ke tabel `orders` (status = 'pending_payment');
+:Menyimpan snapshot nama produk, harga satuan,\ndan kuantitas ke tabel `order_items`;
+:Menghapus seluruh item di keranjang belanja pengguna;
+:Menyimpan riwayat status awal di `order_status_histories`;
+:Komitmen Transaksi database;
+
+:Mengarahkan pelanggan ke halaman sukses checkout;
+|Pelanggan|
+:Melihat petunjuk instruksi transfer bank manual;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-upload-payment
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 7. Diagram Aktivitas Detail - Mengunggah Bukti Pembayaran
+
+|Pelanggan|
+start
+:Membuka halaman Riwayat Pesanan;
+:Memilih pesanan berstatus "Menunggu Pembayaran" / "Ditolak";
+:Menekan tombol "Upload Bukti Pembayaran";
+:Mengisi formulir (Bank Asal, Bank Tujuan, Nama Pengirim,\nNominal, Tanggal) & mengunggah berkas bukti (gambar);
+:Menekan tombol "Kirim Pembayaran";
+
+|Sistem (Laravel Backend)|
+:Menerima Form Request Unggah Bukti;
+:Memvalidasi data input & berkas bukti\n(ekstensi: JPG/JPEG/PNG/WebP, ukuran max: 2MB);
+
+if (Validasi lolos?) then (Tidak)
+    :Mengembalikan ke form dengan pesan error;
+    |Pelanggan|
+    :Memperbaiki form / memilih gambar baru;
+    stop
+else (Ya)
+endif
+
+:Membuka transaksi database;
+if (Apakah sudah ada pembayaran sebelumnya yang ditolak?) then (Ya)
+    :Menghapus berkas bukti transfer lama dari penyimpanan server;
+    :Memperbarui baris data di tabel `payments`;
+else (Tidak)
+    :Menyimpan berkas bukti transfer baru ke `storage/app/public/payment_proofs/`;
+    :Membuat baris data baru di tabel `payments` (status = 'waiting_verification');
+endif
+
+:Mengubah status pesanan menjadi `waiting_verification`;
+:Mencatat histori status pesanan di `order_status_histories`;
+:Komitmen Transaksi;
+:Mengalihkan ke halaman detail pesanan dengan pesan sukses;
+
+|Pelanggan|
+:Melihat status pesanan diperbarui menjadi "Menunggu Verifikasi";
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-verify-reject-payment
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 8. Diagram Aktivitas Detail - Verifikasi atau Penolakan Pembayaran
+
+|Operator / Admin|
+start
+:Membuka halaman Detail Pesanan di Dashboard;
+:Memeriksa kesesuaian gambar bukti transfer dengan mutasi rekening bank;
+
+if (Apakah pembayaran valid?) then (Ya - Setujui)
+    :Menekan tombol "Verifikasi Pembayaran";
+    |Sistem (Laravel Backend)|
+    :Membuka transaksi database;
+    :Mengunci baris produk terkait (`lockForUpdate`);
+    :Memeriksa ketersediaan stok produk;
+    if (Stok mencukupi?) then (Ya)
+        :Mengurangi stok produk di tabel `products` secara otomatis;
+        :Mencatat log mutasi keluar (`out`) di tabel `stock_movements`;
+        :Memperbarui status di `payments` menjadi `verified`;
+        :Memperbarui status di `orders` menjadi `paid`;
+        :Mencatat transisi di `order_status_histories`;
+        :Komitmen Transaksi;
+    else (Tidak)
+        :Membatalkan transaksi (*rollback*);\nMengirim respon error "Stok habis";
+        |Operator / Admin|
+        :Melihat pesan error verifikasi;
+        stop
+    endif
+else (Tidak - Tolak)
+    |Operator / Admin|
+    :Menekan tombol "Tolak Pembayaran";
+    :Menginputkan alasan penolakan wajib (*rejection_note*);
+    :Mengirimkan form penolakan;
+    |Sistem (Laravel Backend)|
+    :Membuka transaksi database;
+    :Memperbarui status di `payments` menjadi `rejected` & menyimpan alasan;
+    :Memperbarui status di `orders` menjadi `rejected` (menunggu bukti baru);
+    :Mencatat transisi di `order_status_histories`;
+    :Komitmen Transaksi;
+endif
+
+|Sistem (Laravel Backend)|
+:Menyegarkan halaman detail pesanan;
+|Operator / Admin|
+:Melihat status transaksi terbaru merefleksikan hasil keputusan;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-update-order-status
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 9. Diagram Aktivitas Detail - Pengelolaan Status Pesanan
+
+|Operator / Admin|
+start
+:Membuka halaman Detail Pesanan aktif;
+:Memilih status baru pada dropdown navigasi status;
+:Menginput catatan operasional staf (*optional*);
+:Menekan tombol "Perbarui Status";
+
+|Sistem (Laravel Backend)|
+:Memvalidasi kewenangan staf (*policy*);
+:Mengambil status pesanan saat ini;
+:Memeriksa validitas alur transisi status:
+* `paid` -> `processing` (Mulai dirangkai)
+* `processing` -> `ready` (Bunga selesai/siap)
+* `ready` -> `shipped` (Bunga dikirim kurir)
+* `shipped` -> `completed` (Pesanan selesai);
+
+if (Apakah transisi status legal?) then (Ya)
+    :Memperbarui kolom `order_status` di tabel `orders`;
+    if (Status == 'completed') then (Ya)
+        :Mengisi timestamp `completed_at` dengan waktu sekarang;
+    else (Tidak)
+    endif
+    :Mencatat log riwayat transisi di `order_status_histories`;
+    :Mengirim respon sukses ke antarmuka;
+else (Tidak)
+    :Menolak perubahan & mengirim respon error "Transisi Ilegal";
+    |Operator / Admin|
+    :Melihat pesan error & memilih alur yang benar;
+    stop
+endif
+
+|Sistem (Laravel Backend)|
+:Menyegarkan halaman detail pesanan;
+|Operator / Admin|
+:Melihat lini masa (*timeline*) status terupdate;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-manage-product
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 10. Diagram Aktivitas Detail - Pengelolaan Produk Bunga (Admin CRUD)
+
+|Admin|
+start
+:Mengakses halaman Manajemen Produk;
+
+split
+    :Menekan "Tambah Produk Baru";
+    :Mengisi form nama, deskripsi, harga, stok, kategori,\nstatus aktif, & mengunggah gambar produk;
+    :Menekan tombol "Simpan";
+    |Sistem (Laravel Backend)|
+    :Memvalidasi input (harga & stok >= 0, gambar < 2MB);
+    if (Validasi sukses?) then (Ya)
+        :Menyimpan gambar ke `public/products/` disk;
+        :Membuat baris baru di tabel `products`;
+    else (Tidak)
+        :Kembali ke form dengan pesan error;
+        stop
+    fi
+split again
+    :Menekan tombol "Edit" pada produk;
+    :Mengubah data produk & mengunggah gambar baru (*optional*);
+    :Menekan tombol "Simpan Perubahan";
+    |Sistem (Laravel Backend)|
+    :Memvalidasi input;
+    if (Validasi sukses?) then (Ya)
+        if (Apakah gambar diganti?) then (Ya)
+            :Menghapus berkas gambar lama dari penyimpanan server;
+            :Menyimpan berkas gambar baru ke server;
+        else (Tidak)
+        endif
+        :Memperbarui data produk di tabel `products`;
+    else (Tidak)
+        :Kembali ke form dengan pesan error;
+        stop
+    fi
+split again
+    :Menekan tombol "Hapus" pada salah satu produk;
+    |Sistem (Laravel Backend)|
+    :Menjalankan fungsi *Soft Delete* (`deleted_at = now()`);
+    :Produk tidak akan muncul di katalog publik\nnamun data historis pesanan lama tetap aman;
+end split
+
+|Sistem (Laravel Backend)|
+:Mengarahkan admin ke halaman daftar produk dengan pesan sukses;
+|Admin|
+:Melihat tabel produk terupdate;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-stock-adjustment
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 11. Diagram Aktivitas Detail - Penyesuaian Stok Manual (Koreksi Inventori)
+
+|Operator / Admin|
+start
+:Membuka halaman Manajemen / Ringkasan Stok;
+:Menekan tombol "Sesuaikan Stok" pada baris bunga;
+:Mengisi formulir penyesuaian (Pilih Tambah / Kurang,\ninput jumlah selisih, & tulis alasan wajib);
+:Menekan tombol "Simpan Penyesuaian";
+
+|Sistem (Laravel Backend)|
+:Menerima Form Request Penyesuaian Stok;
+:Memvalidasi data input (selisih > 0, alasan tidak boleh kosong);
+
+if (Validasi lolos?) then (Tidak)
+    :Mengembalikan ke form dengan pesan error validasi;
+    stop
+else (Ya)
+endif
+
+:Membuka transaksi database (`DB::transaction`);
+:Mengunci baris produk yang disesuaikan (`lockForUpdate`);
+:Membaca stok produk saat ini;
+
+if (Tipe penyesuaian == 'Kurang') then (Ya)
+    :Menghitung stok akhir = stok saat ini - jumlah selisih;
+    if (Apakah stok akhir < 0?) then (Ya)
+        :Membatalkan transaksi (*rollback*);\nMengembalikan respon error "Stok akhir tidak boleh negatif";
+        |Operator / Admin|
+        :Melihat pesan error & mereset jumlah selisih;
+        stop
+    else (Tidak)
+    endif
+else (Tambah)
+    :Menghitung stok akhir = stok saat ini + jumlah selisih;
+endif
+
+:Memperbarui kolom `stock` di tabel `products`;
+:Menulis log audit di tabel `stock_movements`\n(product_id, type = 'adjustment', quantity = selisih,\nstock_before, stock_after, note, created_by = user_id);
+:Komitmen Transaksi database;
+
+:Mengirim respon sukses ke antarmuka;
+|Operator / Admin|
+:Melihat jumlah stok terupdate & baris log baru di riwayat mutasi;
+stop
+@enduml
+
+' ==========================================
+
+@startuml detailed-activity-report-filter
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 12. Diagram Aktivitas Detail - Penyaringan & Ekspor Laporan Keuangan
+
+|Admin|
+start
+:Membuka halaman Laporan Keuangan;
+
+|Sistem (Laravel Backend)|
+:Memuat data default (30 hari terakhir);\nMenghitung ringkasan pendapatan, transaksi, & produk terlaris;
+:Menampilkan statistik & tabel rincian transaksi;
+
+|Admin|
+:Mengubah saringan laporan (Tanggal Mulai, Tanggal Selesai,\nStatus Pesanan, Status Pembayaran) & menekan "Terapkan Filter";
+
+|Sistem (Laravel Backend)|
+:Menerima parameter filter;
+:Membangun query dinamis pada tabel `orders` & `order_items`;
+:Kalkulasi ulang metrik keuangan berdasarkan data tersaring;
+:Memperbarui tampilan visual grafik & data tabel;
+
+|Admin|
+split
+    :Membaca laporan secara langsung di layar;
+split again
+    :Menekan tombol "Ekspor CSV";
+    |Sistem (Laravel Backend)|
+    :Mengekstrak data transaksi terfilter;\nMenulis baris header & data dalam format CSV;\nMenambahkan UTF-8 BOM agar kompatibel dengan MS Excel;
+    :Mengalirkan berkas CSV langsung sebagai unduhan browser;
+    |Admin|
+    :Menerima & membuka berkas spreadsheet laporan;
+split again
+    :Menekan tombol "Cetak Laporan";
+    |Sistem (Laravel Backend)|
+    :Mengaktifkan stylesheet media cetak khusus (`@media print`);\nMenyembunyikan sidebar, topbar, & tombol saringan;\nMenata tabel agar pas dalam ukuran A4;
+    :Memicu jendela pratinjau cetak (*print preview*) browser;
+    |Admin|
+    :Melakukan pencetakan dokumen kertas / simpan PDF;
+end split
+
+stop
+@enduml

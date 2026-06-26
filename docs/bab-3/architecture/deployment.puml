@@ -1,0 +1,45 @@
+@startuml deployment
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam NodeBackgroundColor #F7F4EB
+skinparam NodeBorderColor #022C22
+skinparam NodeFontColor #022C22
+skinparam ArtifactBackgroundColor #EFECE2
+skinparam ArtifactBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title Deployment Diagram - Lingkungan Pengembangan Lokal (Local Development)
+
+node "Perangkat Pengguna\n(Customer / Admin Device)" as ClientDevice {
+    node "Peramban Web\n(Web Browser)" as Browser {
+        artifact "React SPA UI\n(Vite-built Assets)" as ReactAssets
+    }
+}
+
+node "Komputer Server Lokal\n(Local Development Computer)" as LocalServer {
+    node "Web & Application Server\n(PHP Herd / Laragon)" as WebServer {
+        artifact "Laravel Application\n(PHP Core Engine)" as LaravelApp
+    }
+    
+    node "Database Server\n(MySQL Server)" as DbServer {
+        database "little_joy_florist\n(MySQL Database)" as Database
+    }
+    
+    node "Database Administration\n(phpMyAdmin Engine)" as AdminTool {
+        artifact "phpMyAdmin UI" as phpMyAdmin
+    }
+    
+    node "Penyimpanan File\n(Local File Storage)" as FileStorage {
+        folder "storage/app/public/" as StorageFolder
+    }
+}
+
+' Hubungan Komunikasi
+ClientDevice -[#10B981]-> LocalServer : HTTP/HTTPS (Port 8000 / 80)
+Browser -[#10B981]-> WebServer : Request halaman & aset
+ReactAssets <.left.> LaravelApp : Interaksi via Inertia.js (JSON Bridge)
+LaravelApp -[#10B981]-> DbServer : Query SQL (Port 3306)
+LaravelApp -[#10B981]-> FileStorage : Simpan bukti transfer & foto produk (storage:link)
+phpMyAdmin -[#10B981]-> DbServer : Administrasi & inspeksi tabel database
+
+@enduml

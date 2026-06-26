@@ -1,0 +1,188 @@
+@startuml class-diagram
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ClassBackgroundColor #F7F4EB
+skinparam ClassBorderColor #022C22
+skinparam ClassFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam ClassAttributeIconSize 0
+
+title Diagram Kelas Domain (Laravel Eloquent Models) - Little Joy Jakarta
+
+class User {
+    + id : int
+    + name : string
+    + email : string
+    + phone : string
+    + role : string
+    + address : string
+    + is_active : boolean
+    + email_verified_at : datetime
+    + remember_token : string
+    + created_at : datetime
+    + updated_at : datetime
+    + isAdmin() : boolean
+    + isOperator() : boolean
+    + isCustomer() : boolean
+    + hasRole(roles : string|array) : boolean
+    + cart() : HasOne
+    + orders() : HasMany
+}
+
+class Category {
+    + id : int
+    + name : string
+    + slug : string
+    + description : text
+    + is_active : boolean
+    + created_at : datetime
+    + updated_at : datetime
+    + products() : HasMany
+}
+
+class Product {
+    + id : int
+    + category_id : int
+    + name : string
+    + slug : string
+    + description : text
+    + price : decimal
+    + stock : int
+    + image_path : string
+    + is_active : boolean
+    + created_at : datetime
+    + updated_at : datetime
+    + deleted_at : datetime
+    + category() : BelongsTo
+    + stockMovements() : HasMany
+}
+
+class Cart {
+    + id : int
+    + user_id : int
+    + created_at : datetime
+    + updated_at : datetime
+    + user() : BelongsTo
+    + items() : HasMany
+}
+
+class CartItem {
+    + id : int
+    + cart_id : int
+    + product_id : int
+    + quantity : int
+    + unit_price : decimal
+    + subtotal : decimal
+    + created_at : datetime
+    + updated_at : datetime
+    + cart() : BelongsTo
+    + product() : BelongsTo
+}
+
+class Order {
+    + id : int
+    + order_number : string
+    + user_id : int
+    + order_date : datetime
+    + delivery_date : date
+    + recipient_name : string
+    + recipient_phone : string
+    + delivery_address : text
+    + greeting_message : text
+    + customer_note : text
+    + operator_note : text
+    + subtotal : decimal
+    + delivery_fee : decimal
+    + total : decimal
+    + payment_status : string
+    + order_status : string
+    + cancelled_at : datetime
+    + completed_at : datetime
+    + created_at : datetime
+    + updated_at : datetime
+    + user() : BelongsTo
+    + items() : HasMany
+    + payment() : HasOne
+    + statusHistories() : HasMany
+}
+
+class OrderItem {
+    + id : int
+    + order_id : int
+    + product_id : int
+    + product_name : string
+    + unit_price : decimal
+    + quantity : int
+    + subtotal : decimal
+    + created_at : datetime
+    + updated_at : datetime
+    + order() : BelongsTo
+    + product() : BelongsTo
+}
+
+class Payment {
+    + id : int
+    + order_id : int
+    + payment_method : string
+    + destination_bank : string
+    + sender_bank : string
+    + account_holder_name : string
+    + amount : decimal
+    + transfer_date : date
+    + proof_path : string
+    + verification_status : string
+    + verified_by : int
+    + verified_at : datetime
+    + rejection_note : text
+    + created_at : datetime
+    + updated_at : datetime
+    + order() : BelongsTo
+    + verifier() : BelongsTo
+}
+
+class OrderStatusHistory {
+    + id : int
+    + order_id : int
+    + previous_status : string
+    + current_status : string
+    + note : text
+    + changed_by : int
+    + created_at : datetime
+    + updated_at : datetime
+    + order() : BelongsTo
+    + user() : BelongsTo
+}
+
+class StockMovement {
+    + id : int
+    + product_id : int
+    + movement_type : string
+    + quantity : int
+    + stock_before : int
+    + stock_after : int
+    + reference_type : string
+    + reference_id : int
+    + note : text
+    + created_by : int
+    + created_at : datetime
+    + updated_at : datetime
+    + product() : BelongsTo
+    + creator() : BelongsTo
+}
+
+' Hubungan Asosiasi
+User "1" --> "0..1" Cart : memiliki >
+User "1" --> "0..*" Order : melakukan >
+Category "1" --> "0..*" Product : memiliki >
+Product "1" --> "0..*" StockMovement : mencatat >
+Cart "1" --> "0..*" CartItem : berisi >
+CartItem "*" --> "1" Product : merujuk >
+Order "1" --> "1" Payment : memiliki >
+Order "1" --> "1..*" OrderItem : berisi >
+Order "1" --> "1..*" OrderStatusHistory : mencatat >
+OrderItem "*" --> "1" Product : merujuk >
+Payment "*" --> "1" User : diverifikasi oleh >
+OrderStatusHistory "*" --> "1" User : diubah oleh >
+StockMovement "*" --> "1" User : disesuaikan oleh >
+
+@enduml

@@ -1,0 +1,147 @@
+@startuml lrs
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ClassBackgroundColor #F7F4EB
+skinparam ClassBorderColor #022C22
+skinparam ClassFontColor #022C22
+skinparam ArrowColor #10B981
+
+title Logical Record Structure (LRS) - Little Joy Florist Jakarta
+
+entity "users" as users {
+  * **id** (PK)
+  --
+  name
+  email
+  phone
+  password
+  role
+  address
+  is_active
+}
+
+entity "categories" as categories {
+  * **id** (PK)
+  --
+  name
+  slug
+  description
+  is_active
+}
+
+entity "products" as products {
+  * **id** (PK)
+  --
+  * *category_id* (FK)
+  name
+  slug
+  description
+  price
+  stock
+  image_path
+  is_active
+}
+
+entity "carts" as carts {
+  * **id** (PK)
+  --
+  * *user_id* (FK, UK)
+}
+
+entity "cart_items" as cart_items {
+  * **id** (PK)
+  --
+  * *cart_id* (FK)
+  * *product_id* (FK)
+  quantity
+  unit_price
+  subtotal
+}
+
+entity "orders" as orders {
+  * **id** (PK)
+  --
+  * *user_id* (FK)
+  order_number
+  order_date
+  delivery_date
+  recipient_name
+  recipient_phone
+  delivery_address
+  greeting_message
+  customer_note
+  operator_note
+  subtotal
+  delivery_fee
+  total
+  payment_status
+  order_status
+}
+
+entity "order_items" as order_items {
+  * **id** (PK)
+  --
+  * *order_id* (FK)
+  * *product_id* (FK)
+  product_name
+  unit_price
+  quantity
+  subtotal
+}
+
+entity "payments" as payments {
+  * **id** (PK)
+  --
+  * *order_id* (FK, UK)
+  * *verified_by* (FK)
+  payment_method
+  destination_bank
+  sender_bank
+  account_holder_name
+  amount
+  transfer_date
+  proof_path
+  verification_status
+  rejection_note
+}
+
+entity "order_status_histories" as order_status_histories {
+  * **id** (PK)
+  --
+  * *order_id* (FK)
+  * *changed_by* (FK)
+  previous_status
+  current_status
+  note
+}
+
+entity "stock_movements" as stock_movements {
+  * **id** (PK)
+  --
+  * *product_id* (FK)
+  * *created_by* (FK)
+  movement_type
+  quantity
+  stock_before
+  stock_after
+  reference_type
+  reference_id
+  note
+}
+
+' Hubungan Relasional LRS (Sesuai ERD)
+users "1" -right- "0..1" carts : user_id
+users "1" -- "0..*" orders : user_id
+categories "1" -- "0..*" products : category_id
+carts "1" -- "0..*" cart_items : cart_id
+products "1" -- "0..*" cart_items : product_id
+orders "1" -- "0..1" payments : order_id
+orders "1" -- "1..*" order_items : order_id
+products "1" -- "0..*" order_items : product_id
+orders "1" -- "1..*" order_status_histories : order_id
+users "1" -- "0..*" order_status_histories : changed_by
+users "1" -- "0..*" payments : verified_by
+products "1" -- "0..*" stock_movements : product_id
+users "1" -- "0..*" stock_movements : created_by
+
+@enduml

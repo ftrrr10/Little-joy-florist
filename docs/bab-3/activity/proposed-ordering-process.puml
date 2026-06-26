@@ -1,0 +1,80 @@
+@startuml
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title Diagram Aktivitas Sistem yang Diusulkan (Web-Based Ordering System) - Little Joy Jakarta
+
+|Pelanggan|
+start
+:Mengakses website Little Joy;
+:Membuka katalog & memilih produk;
+:Menentukan jumlah & menambah ke keranjang;
+
+if (Apakah sudah login?) then (Tidak)
+    :Melakukan registrasi / login akun;
+else (Ya)
+endif
+
+:Membuka halaman Checkout;
+
+|Sistem|
+:Melakukan validasi otomatis\n(status produk aktif & stok cukup);
+if (Validasi Stok & Status?) then (Gagal)
+    :Menampilkan pesan stok tidak cukup\n& mengembalikan ke keranjang;
+    |Pelanggan|
+    :Memperbarui keranjang;
+    stop
+else (Sukses)
+endif
+
+|Pelanggan|
+:Mengisi data penerima, alamat,\ntanggal kirim, pesan kartu, & catatan;
+:Mengonfirmasi checkout pesanan;
+
+|Sistem|
+:Membuat data pesanan baru (LJ-YYYYMMDD-XXXX);\nSet status pesanan = pending_payment;\nMengosongkan keranjang belanja;
+:Menampilkan halaman sukses & instruksi pembayaran bank;
+
+|Pelanggan|
+:Mentransfer dana sesuai total tagihan;
+:Mengakses Riwayat Pesanan & memilih Upload Pembayaran;
+:Mengisi form (nama pengirim, bank asal, nominal)\n& mengunggah foto bukti transfer;
+:Mengirimkan bukti pembayaran;
+
+|Sistem|
+:Menyimpan data bukti transfer;\nSet status pesanan = waiting_verification;
+:Memasukkan pesanan ke antrean verifikasi operator;
+
+|Operator|
+:Membuka antrean verifikasi di dashboard;
+:Memeriksa foto bukti transfer & mutasi bank;
+
+if (Apakah pembayaran valid?) then (Valid)
+    :Mengonfirmasi pembayaran di sistem;
+    |Sistem|
+    :Mengurangi stok produk otomatis;\nMencatat mutasi di log inventori;\nSet status pembayaran = verified;\nSet status pesanan = paid;
+    |Operator|
+    :Memproses pembuatan rangkaian bunga;\nSet status pesanan = processing;
+    :Menyelesaikan rangkaian bunga;\nSet status pesanan = ready;
+    :Menyerahkan ke kurir & mengirim bunga;\nSet status pesanan = shipped;
+    :Mengonfirmasi bunga diterima pelanggan;\nSet status pesanan = completed;
+else (Tidak Valid)
+    |Operator|
+    :Menolak pembayaran & menginput alasan penolakan;
+    |Sistem|
+    :Set status pembayaran = rejected;\nSet status pesanan = rejected (menunggu bukti baru);
+endif
+
+|Pelanggan|
+:Menerima pesanan & memantau histori timeline status;
+stop
+@enduml

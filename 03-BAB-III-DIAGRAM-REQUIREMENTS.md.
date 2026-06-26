@@ -1,0 +1,629 @@
+BAB III Diagram and Design Requirements
+
+Project Context
+
+Project title:
+
+Perancangan Sistem Informasi Pemesanan Bunga Berbasis Web pada Usaha Florist Little Joy Jakarta
+
+Technology stack:
+
+* Laravel
+* React
+* TypeScript
+* Inertia.js
+* Tailwind CSS
+* MySQL
+* phpMyAdmin
+
+User roles:
+
+* Guest
+* Customer
+* Operator
+* Admin
+
+The application contains:
+
+* authentication;
+* product catalogue;
+* category management;
+* product management;
+* inventory management;
+* shopping cart;
+* checkout;
+* manual bank-transfer payment;
+* payment-proof upload;
+* payment verification;
+* order-status management;
+* order-status history;
+* customer management;
+* operator management;
+* dashboard;
+* sales reports.
+
+Main Objective
+
+Produce diagrams and visual design artefacts for BAB III of the thesis.
+
+All diagrams must be based on:
+
+1. the approved product requirements;
+2. the actual application workflow;
+3. the current database design;
+4. the actual roles and permissions;
+5. the existing or planned source-code structure.
+
+Do not invent modules, actors, tables, or processes outside the documented project scope.
+
+Required Output Directory
+
+Create the following structure:
+
+docs/bab-3/
+├── analysis/
+├── use-case/
+├── activity/
+├── sequence/
+├── database/
+├── architecture/
+├── navigation/
+├── ui/
+└── exported/
+
+Store source files separately from exported images.
+
+Example:
+
+docs/bab-3/use-case/use-case-overview.puml
+docs/bab-3/exported/use-case-overview.svg
+
+General Diagram Rules
+
+1. Use Indonesian labels.
+2. Use consistent terminology across all diagrams.
+3. Use the exact same user roles used by the application.
+4. Use the exact same order and payment statuses used by the application.
+5. Ensure diagrams are readable when inserted into an A4 thesis document.
+6. Avoid diagrams that are excessively wide.
+7. Split complex diagrams into smaller diagrams.
+8. Add a title to each diagram.
+9. Use clear actor, process, entity, and relationship names.
+10. Do not include implementation details that are irrelevant to BAB III.
+11. Do not put screenshots of source code inside diagrams.
+12. Ensure every diagram has a written explanation in Indonesian.
+13. State assumptions explicitly.
+14. Mark diagrams as proposed designs when the system has not yet been implemented.
+
+1. Current-System Activity Diagram
+
+Create an Activity Diagram describing the current manual ordering process through WhatsApp.
+
+Actors:
+
+* Customer
+* Admin
+
+Current workflow:
+
+1. Customer opens social media or receives product information.
+2. Customer contacts the florist through WhatsApp.
+3. Customer asks about products, prices, availability, and delivery.
+4. Admin checks information manually.
+5. Admin replies to the customer.
+6. Customer selects a product.
+7. Admin records the order manually.
+8. Customer transfers payment.
+9. Customer sends payment proof through WhatsApp.
+10. Admin verifies payment manually.
+11. Admin processes the order.
+12. Admin informs the customer about order progress.
+13. The order is delivered.
+14. Admin records or archives transaction information manually.
+
+Show relevant decision points:
+
+* product available or unavailable;
+* customer continues or cancels;
+* payment valid or invalid;
+* order completed or cancelled.
+
+Output:
+
+docs/bab-3/activity/current-ordering-process.puml
+docs/bab-3/exported/current-ordering-process.svg
+
+2. Proposed-System Activity Diagram
+
+Create an Activity Diagram describing the proposed web-based process.
+
+Actors:
+
+* Customer
+* System
+* Operator
+
+Workflow:
+
+1. Customer opens the catalogue.
+2. Customer selects a product.
+3. Customer adds the product to the cart.
+4. Customer logs in or registers.
+5. Customer opens checkout.
+6. System validates product status, stock, quantity, and price.
+7. Customer enters recipient and delivery information.
+8. System creates an order.
+9. Customer receives an order number and payment instructions.
+10. Customer uploads payment proof.
+11. Operator reviews the payment.
+12. Operator verifies or rejects the payment.
+13. If verified, the system reduces product stock.
+14. Operator updates the order status.
+15. Customer views the order-status timeline.
+16. Operator marks the order as completed.
+
+Include failure flows:
+
+* insufficient stock;
+* invalid checkout information;
+* invalid payment proof;
+* rejected payment;
+* cancelled order.
+
+3. Use Case Diagram
+
+Create one overview Use Case Diagram.
+
+Actors:
+
+Guest
+
+* view landing page;
+* view catalogue;
+* search products;
+* filter products;
+* view product details;
+* register;
+* login.
+
+Customer
+
+* manage profile;
+* manage shopping cart;
+* checkout;
+* upload payment proof;
+* view order history;
+* view order details;
+* view status timeline;
+* cancel eligible order;
+* logout.
+
+Operator
+
+* view operational dashboard;
+* view orders;
+* view order details;
+* verify payment;
+* reject payment;
+* update order status;
+* add operational notes;
+* inspect stock;
+* logout.
+
+Admin
+
+* use operator functions;
+* manage categories;
+* manage products;
+* manage inventory;
+* manage operators;
+* view customers;
+* view dashboard;
+* view reports;
+* view stock history;
+* logout.
+
+Use proper UML relations:
+
+* association;
+* include;
+* extend;
+* actor generalisation only when genuinely appropriate.
+
+Do not connect every actor to every use case merely to fill the page.
+
+4. Use Case Descriptions
+
+For every major use case, create a structured description containing:
+
+* use-case name;
+* actor;
+* objective;
+* precondition;
+* trigger;
+* main flow;
+* alternative flow;
+* exception flow;
+* postcondition.
+
+Major use cases:
+
+1. Customer registration
+2. Login
+3. View product catalogue
+4. Manage cart
+5. Checkout
+6. Upload payment proof
+7. Verify payment
+8. Reject payment
+9. Update order status
+10. Manage product
+11. Manage stock
+12. View sales report
+
+Store the descriptions in:
+
+docs/bab-3/use-case/use-case-descriptions.md
+
+5. Detailed Activity Diagrams
+
+Create separate Activity Diagrams for:
+
+1. Customer registration
+2. Login
+3. Product search and filtering
+4. Add product to cart
+5. Update cart
+6. Checkout
+7. Upload payment proof
+8. Verify or reject payment
+9. Update order status
+10. Product management
+11. Stock adjustment
+12. Sales-report filtering
+
+Use swimlanes where more than one actor or system component is involved.
+
+6. Sequence Diagrams
+
+Create Sequence Diagrams for:
+
+1. Login
+2. Add product to cart
+3. Checkout
+4. Upload payment proof
+5. Payment verification
+6. Order-status update
+7. Product creation
+8. Stock adjustment
+9. Sales-report generation
+
+Use participants appropriate to the Laravel React Inertia architecture:
+
+* User
+* React Page
+* Laravel Route
+* Controller
+* Form Request
+* Policy
+* Service or Action
+* Eloquent Model
+* MySQL Database
+
+Do not add every participant to every diagram. Include only the components involved in that process.
+
+For checkout, include:
+
+* Customer
+* CheckoutPage
+* CheckoutController
+* CheckoutRequest
+* CheckoutService
+* Product
+* Order
+* OrderItem
+* Cart
+* MySQL
+
+Show:
+
+* validation;
+* transaction start;
+* stock and price revalidation;
+* order-number creation;
+* order-item creation;
+* cart clearing;
+* transaction commit;
+* response to customer;
+* rollback on failure.
+
+7. Class Diagram
+
+Create a Class Diagram based on the planned Laravel domain model.
+
+Classes:
+
+* User
+* Category
+* Product
+* Cart
+* CartItem
+* Order
+* OrderItem
+* Payment
+* OrderStatusHistory
+* StockMovement
+
+Add important attributes only.
+
+Show:
+
+* associations;
+* cardinality;
+* inheritance only if actually used;
+* relevant methods or domain operations where useful.
+
+Do not list every Laravel framework method.
+
+Use Laravel model terminology consistently.
+
+8. Entity Relationship Diagram
+
+Create an ERD containing:
+
+* table names;
+* primary keys;
+* foreign keys;
+* important attributes;
+* cardinality;
+* optional and required relationships.
+
+Tables:
+
+* users
+* categories
+* products
+* carts
+* cart_items
+* orders
+* order_items
+* payments
+* order_status_histories
+* stock_movements
+
+Output formats:
+
+docs/bab-3/database/erd.mmd
+docs/bab-3/database/schema.dbml
+docs/bab-3/exported/erd.svg
+
+Ensure the ERD matches Laravel migrations.
+
+9. Logical Record Structure
+
+Create an LRS derived from the ERD.
+
+The LRS must show:
+
+* table or record name;
+* primary key;
+* foreign keys;
+* relationships between records.
+
+Do not create LRS relationships that contradict the ERD.
+
+Output:
+
+docs/bab-3/database/lrs.puml
+docs/bab-3/exported/lrs.svg
+
+10. Deployment Diagram
+
+Create a Deployment Diagram for the local development and demonstration environment.
+
+Nodes:
+
+* Customer or Admin Device
+* Web Browser
+* Local Development Computer
+* Laravel Application
+* Vite-built React Assets
+* MySQL Server
+* Local File Storage
+* phpMyAdmin
+
+Show:
+
+* HTTP communication;
+* Laravel database connection;
+* file-storage access;
+* phpMyAdmin database-administration connection.
+
+Do not present phpMyAdmin as part of the user-facing application.
+
+11. Component Architecture Diagram
+
+Create a high-level architecture diagram containing:
+
+React + Inertia UI
+Laravel Routes
+Controllers
+Form Requests
+Policies
+Services / Actions
+Eloquent Models
+MySQL
+Laravel Storage
+
+Show the direction of requests and responses.
+
+12. Sitemap
+
+Create a sitemap with the following hierarchy:
+
+Public
+
+* Beranda
+* Produk
+* Detail Produk
+* Tentang Kami
+* Kontak
+* Login
+* Registrasi
+
+Customer
+
+* Keranjang
+* Checkout
+* Pesanan Berhasil
+* Upload Pembayaran
+* Riwayat Pesanan
+* Detail Pesanan
+* Profil
+
+Operator
+
+* Dashboard
+* Daftar Pesanan
+* Detail Pesanan
+* Verifikasi Pembayaran
+* Stok Produk
+
+Admin
+
+* Dashboard
+* Pesanan
+* Kategori
+* Produk
+* Stok
+* Pelanggan
+* Operator
+* Laporan
+
+Output:
+
+docs/bab-3/navigation/sitemap.mmd
+docs/bab-3/exported/sitemap.svg
+
+13. User Flow
+
+Create user flows for:
+
+1. Guest to completed checkout
+2. Customer payment upload
+3. Operator payment verification
+4. Operator order processing
+5. Admin product creation
+6. Admin sales-report review
+
+Each user flow must include:
+
+* entry point;
+* actions;
+* decision points;
+* success state;
+* error or alternate state.
+
+14. User Interface Wireframes
+
+Use the provided Stitch design as the visual reference.
+
+Create low-fidelity or medium-fidelity wireframes for:
+
+Public
+
+* landing page;
+* catalogue;
+* product detail;
+* login;
+* registration.
+
+Customer
+
+* cart;
+* checkout;
+* checkout success;
+* payment upload;
+* order history;
+* order detail;
+* profile.
+
+Dashboard
+
+* dashboard overview;
+* order list;
+* order detail;
+* payment verification;
+* category list and form;
+* product list and form;
+* stock history;
+* customer list;
+* operator list;
+* sales report.
+
+Wireframes must show:
+
+* page title;
+* navigation;
+* primary content;
+* primary actions;
+* form structure;
+* tables or cards;
+* filters;
+* status badges;
+* empty states;
+* responsive considerations.
+
+Use the Botanical Heritage design language:
+
+* emerald green;
+* cream backgrounds;
+* serif headings;
+* sans-serif body text;
+* restrained gold accents;
+* generous whitespace.
+
+15. Written Explanation
+
+For each diagram, write:
+
+1. diagram objective;
+2. actors or components;
+3. main process;
+4. important decisions;
+5. relationship to the proposed system.
+
+Store all explanations in:
+
+docs/bab-3/diagram-explanations.md
+
+Use formal Indonesian suitable for a thesis.
+
+16. Verification Checklist
+
+Before declaring completion:
+
+1. Compare the diagrams with the PRD.
+2. Compare the ERD with migrations.
+3. Compare the Class Diagram with models.
+4. Compare the use cases with routes and permissions.
+5. Compare sequence diagrams with controllers and services.
+6. Verify Indonesian terminology.
+7. Verify diagram readability.
+8. Verify that all exported SVG files open correctly.
+9. Verify that diagrams do not contradict each other.
+10. List unresolved assumptions.
+
+First Task
+
+Do not generate all diagrams immediately.
+
+First:
+
+1. Analyse the repository and all requirement documents.
+2. List the diagrams required for BAB III.
+3. Identify which diagrams can be generated from the current codebase.
+4. Identify which diagrams still require assumptions.
+5. Produce a diagram-generation plan.
+6. Produce the proposed filenames.
+7. Stop before generating diagram files.

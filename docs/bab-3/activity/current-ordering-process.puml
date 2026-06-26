@@ -1,0 +1,68 @@
+@startuml
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title Diagram Aktivitas Sistem Berjalan (Pemesanan Manual via WhatsApp) - Little Joy Jakarta
+
+|Pelanggan|
+start
+:Membuka media sosial atau\nmenerima info katalog produk;
+:Menghubungi florist via WhatsApp;
+:Menanyakan informasi produk,\nharga, ketersediaan, & ongkir;
+
+|Admin Florist|
+:Menerima pesan WhatsApp;
+:Memeriksa ketersediaan stok & data\nharga secara manual (buku/spreadsheet);
+:Membalas chat pelanggan dengan rincian;
+
+|Pelanggan|
+if (Apakah produk tersedia?) then (Ya)
+    :Memilih produk & sepakat\ndengan harga & ongkir;
+else (Tidak)
+    :Membatalkan pemesanan;
+    stop
+endif
+
+:Mengonfirmasi pesanan & rincian\npengiriman (nama, alamat, tanggal);
+
+|Admin Florist|
+:Mencatat pesanan & rincian pengiriman\nsecara manual (buku/spreadsheet);
+:Mengirimkan total tagihan & nomor rekening;
+
+|Pelanggan|
+:Melakukan transfer pembayaran bank;
+:Mengirimkan foto bukti transfer via WhatsApp;
+
+|Admin Florist|
+:Menerima foto bukti transfer;
+:Memeriksa saldo masuk melalui m-banking\nsecara manual;
+if (Apakah transfer valid?) then (Ya)
+    :Mengonfirmasi pembayaran diterima;
+    :Mempersiapkan rangkaian bunga\n& memesan kurir;
+else (Tidak)
+    :Mengabarkan transfer tidak masuk/salah;
+    |Pelanggan|
+    :Melakukan transfer ulang / klarifikasi;
+    stop
+endif
+
+|Admin Florist|
+:Menyerahkan bunga ke kurir;
+:Mengabarkan pelanggan bahwa bunga dikirim;
+
+|Pelanggan|
+:Menerima rangkaian bunga;
+
+|Admin Florist|
+:Mengarsipkan nota transaksi manual;
+stop
+@enduml

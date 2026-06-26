@@ -1,0 +1,39 @@
+# Tasks - Phase 2: Categories and Products
+
+- [x] Database Migrations and Models
+    - [x] Create `categories` migration and run it
+    - [x] Create `products` migration (with category foreign key and soft delete) and run it
+    - [x] Create `Category` model with fillables, casts, and relations
+    - [x] Create `Product` model with fillables, casts, soft deletes, and relations
+- [x] Factories and Seeders
+    - [x] Create `CategoryFactory` and `ProductFactory`
+    - [x] Update `DatabaseSeeder` to seed 5 categories, 20 products, 1 admin, 2 operators, and 5 customers
+    - [x] Run seeders to populate local database with mock data
+- [x] Admin CRUD: Kategori
+    - [x] Create `CategoryRequest` for validation
+    - [x] Create `CategoryController` (Admin) with index, store, update, destroy
+    - [x] Implement `CategoryList.tsx` (Admin view and delete)
+    - [x] Implement `CategoryForm.tsx` (Admin add/edit)
+- [x] Admin CRUD: Produk
+    - [x] Create `ProductRequest` for validation (price/stock >= 0, image check)
+    - [x] Create `ProductController` (Admin) with index, store, update, destroy (handling image upload)
+    - [x] Implement `ProductList.tsx` (Admin view and delete)
+    - [x] Implement `ProductForm.tsx` (Admin add/edit with image upload)
+- [x] Policies and Middleware Authorization
+    - [x] Create `CategoryPolicy` (Admin CRUD, Operator/Customer read-only)
+    - [x] Create `ProductPolicy` (Admin CRUD, Operator/Customer read-only)
+    - [x] Register policies in AuthServiceProvider (or let Laravel auto-discover them)
+- [x] Public Catalogue and Product Details
+    - [x] Create `CatalogueController` (Public)
+    - [x] Implement `ProductCatalogue.tsx` (search, category filter, sorting, availability check)
+    - [x] Implement `ProductDetail.tsx` (image display, price, stock levels, quantity controls, related products)
+- [x] Reusable Product UI Components
+    - [x] Create `ProductCard.tsx`
+    - [x] Create `ProductGrid.tsx`
+    - [x] Create `ProductFilter.tsx`
+    - [x] Create `StockIndicator.tsx`
+- [x] Automated Testing
+    - [x] Write `CategoryCrudTest.php` verifying authorization and validations
+    - [x] Write `ProductCrudTest.php` verifying authorization, validations, image uploads, and soft deletes
+    - [x] Write `CatalogueVisibilityTest.php` verifying active/inactive and soft-deleted product rules
+    - [x] Run test suite and verify 100% pass rate

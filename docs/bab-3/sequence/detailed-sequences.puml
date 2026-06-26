@@ -1,0 +1,520 @@
+@startuml sequence-login
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 1. Sequence Diagram - Login Pengguna
+
+actor "Pengguna" as User
+participant "LoginPage (React)" as Page
+participant "web.php (Route)" as Route
+participant "LoginController" as Controller
+participant "LoginRequest" as Request
+database "MySQL" as DB
+
+User -> Page : Membuka halaman login & input kredensial
+User -> Page : Menekan tombol "Masuk"
+Page -> Route : POST /login (data kredensial)
+Route -> Controller : store(LoginRequest)
+activate Controller
+
+Controller -> Request : Melakukan validasi format input
+activate Request
+Request --> Controller : Validasi sukses
+deactivate Request
+
+Controller -> DB : Query user berdasarkan email
+activate DB
+DB --> Controller : Data Pengguna (email, password_hash, role, is_active)
+deactivate DB
+
+Controller -> Controller : Verifikasi kecocokan password (Hash::check)
+Controller -> Controller : Verifikasi keaktifan akun (is_active == true)
+
+alt Kredensial Valid & Akun Aktif
+    Controller -> Controller : Regenerasi sesi (Auth::login)
+    Controller --> Page : Redirect ke halaman tujuan (Inertia Response)
+    Page --> User : Tampilan Dashboard / Beranda sesuai role
+else Kredensial Salah / Akun Tidak Aktif
+    Controller --> Page : Redirect back dengan pesan error (Inertia Session)
+    deactivate Controller
+    Page --> User : Tampilkan pesan kesalahan di form
+end
+@enduml
+
+' ==========================================
+
+@startuml sequence-add-to-cart
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 2. Sequence Diagram - Memasukkan Produk Ke Keranjang
+
+actor "Pelanggan" as User
+participant "ProductDetail (React)" as Page
+participant "web.php (Route)" as Route
+participant "CartController" as Controller
+participant "CartItemRequest" as Request
+participant "Product (Model)" as ModelProduct
+participant "Cart (Model)" as ModelCart
+database "MySQL" as DB
+
+User -> Page : Menentukan jumlah & klik "Masukkan Ke Keranjang"
+Page -> Route : POST /keranjang (product_id, quantity)
+Route -> Controller : store(CartItemRequest)
+activate Controller
+
+Controller -> Request : Validasi request
+activate Request
+Request --> Controller : Validasi sukses
+deactivate Request
+
+Controller -> ModelProduct : findOrFail(product_id)
+activate ModelProduct
+ModelProduct -> DB : Query data produk
+activate DB
+DB --> ModelProduct : Data Produk (harga, stok, status)
+deactivate DB
+ModelProduct --> Controller : Objek Produk
+deactivate ModelProduct
+
+Controller -> Controller : Verifikasi quantity <= stok produk
+
+Controller -> DB : DB::transaction()
+activate DB
+
+Controller -> ModelCart : firstOrCreate(['user_id' => auth_id])
+activate ModelCart
+ModelCart -> DB : Query / Insert keranjang milik user
+DB --> ModelCart : Objek Keranjang
+ModelCart --> Controller : Objek Keranjang
+deactivate ModelCart
+
+Controller -> DB : Query item duplikat di keranjang (`cart_items`)
+DB --> Controller : Data item keranjang (jika ada)
+
+alt Produk Sudah Ada di Keranjang
+    Controller -> Controller : Hitung akumulasi quantity & subtotal baru
+    Controller -> DB : UPDATE `cart_items` (quantity, subtotal)
+else Produk Baru
+    Controller -> DB : INSERT `cart_items` (cart_id, product_id, quantity, unit_price, subtotal)
+end
+
+Controller -> DB : Commit Transaction
+deactivate DB
+
+Controller --> Page : Redirect ke /keranjang (Inertia Response)
+deactivate Controller
+Page --> User : Tampilan halaman Keranjang Belanja terupdate
+@enduml
+
+' ==========================================
+
+@startuml sequence-checkout
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 3. Sequence Diagram - Proses Checkout Pesanan
+
+actor "Pelanggan" as User
+participant "CheckoutPage (React)" as Page
+participant "web.php (Route)" as Route
+participant "CheckoutController" as Controller
+participant "CheckoutRequest" as Request
+participant "Product (Model)" as ModelProduct
+participant "Order (Model)" as ModelOrder
+database "MySQL" as DB
+
+User -> Page : Mengisi formulir pengiriman & klik "Konfirmasi Pesanan"
+Page -> Route : POST /checkout (data pengiriman)
+Route -> Controller : store(CheckoutRequest)
+activate Controller
+
+Controller -> Request : Validasi input pengiriman
+activate Request
+Request --> Controller : Validasi sukses
+deactivate Request
+
+Controller -> DB : DB::transaction()
+activate DB
+
+Controller -> ModelProduct : lockForUpdate()->whereIn(product_ids)->get()
+activate ModelProduct
+ModelProduct -> DB : SELECT ... FOR UPDATE (mengunci baris produk)
+DB --> ModelProduct : Kumpulan Data Produk Terkunci
+ModelProduct --> Controller : Kumpulan Objek Produk
+deactivate ModelProduct
+
+Controller -> Controller : Validasi ketersediaan stok fisik produk\ndan kecocokan harga satuan aktual
+
+alt Stok Tidak Cukup / Harga Berubah
+    Controller -> DB : Rollback Transaction
+    Controller --> Page : Redirect back dengan pesan error stok
+    Page --> User : Tampilkan pesan error di Keranjang Belanja
+else Stok Cukup
+    Controller -> DB : Query pesanan hari ini untuk sequence nomor
+    DB --> Controller : Data pesanan terakhir
+    Controller -> Controller : Generate nomor pesanan (`LJ-YYYYMMDD-XXXX`)
+    
+    Controller -> ModelOrder : create(data_order)
+    activate ModelOrder
+    ModelOrder -> DB : INSERT `orders` (status = 'pending_payment')
+    DB --> ModelOrder : Objek Pesanan Baru
+    ModelOrder --> Controller : Objek Pesanan Baru
+    deactivate ModelOrder
+
+    Controller -> DB : INSERT `order_items` (menyalin snapshot produk & harga)
+    Controller -> DB : DELETE `cart_items` (mengosongkan keranjang)
+    Controller -> DB : INSERT `order_status_histories` (catat status pending_payment)
+    
+    Controller -> DB : Commit Transaction
+    deactivate DB
+    
+    Controller --> Page : Redirect ke /checkout/sukses/{orderNumber}
+    deactivate Controller
+    Page --> User : Tampilkan halaman sukses checkout & panduan rekening bank
+end
+@enduml
+
+' ==========================================
+
+@startuml sequence-upload-payment
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 4. Sequence Diagram - Mengunggah Bukti Pembayaran
+
+actor "Pelanggan" as User
+participant "PaymentUpload (React)" as Page
+participant "web.php (Route)" as Route
+participant "PaymentController" as Controller
+participant "PaymentRequest" as Request
+participant "Payment (Model)" as ModelPayment
+database "MySQL" as DB
+
+User -> Page : Memilih file bukti transfer & isi formulir bank
+User -> Page : Menekan tombol "Kirim Pembayaran"
+Page -> Route : POST /pesanan/{orderNumber}/pembayaran (data bukti)
+Route -> Controller : store(orderNumber, PaymentRequest)
+activate Controller
+
+Controller -> Request : Validasi format gambar (<2MB) & input teks
+activate Request
+Request --> Controller : Validasi sukses
+deactivate Request
+
+Controller -> Controller : Validasi kepemilikan pesanan (auth_id == order->user_id)
+
+Controller -> DB : DB::transaction()
+activate DB
+
+Controller -> Controller : Simpan file bukti ke folder `public/payment_proofs/`
+
+alt Mengunggah Bukti Pertama Kali
+    Controller -> ModelPayment : create(data_pembayaran)
+    activate ModelPayment
+    ModelPayment -> DB : INSERT `payments` (status = 'waiting_verification')
+    ModelPayment --> Controller : Objek Pembayaran
+    deactivate ModelPayment
+else Unggah Ulang Karena Ditolak
+    Controller -> Controller : Hapus berkas bukti transfer lama dari disk server
+    Controller -> DB : UPDATE `payments` (bukti baru, status = 'waiting_verification')
+end
+
+Controller -> DB : UPDATE `orders` SET order_status = 'waiting_verification'
+Controller -> DB : INSERT `order_status_histories` (catat waiting_verification)
+Controller -> DB : Commit Transaction
+deactivate DB
+
+Controller --> Page : Redirect ke detail pesanan (Inertia Response)
+deactivate Controller
+Page --> User : Tampilan status pesanan berubah menjadi "Menunggu Verifikasi"
+@enduml
+
+' ==========================================
+
+@startuml sequence-payment-verification
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 5. Sequence Diagram - Verifikasi Pembayaran (Oleh Operator/Admin)
+
+actor "Operator / Admin" as User
+participant "OrderDetail (React)" as Page
+participant "web.php (Route)" as Route
+participant "OperatorOrderController" as Controller
+participant "Product (Model)" as ModelProduct
+database "MySQL" as DB
+
+User -> Page : Memeriksa mutasi bank & menekan tombol "Verifikasi Pembayaran"
+Page -> Route : POST /kelola/pesanan/{orderNumber}/verifikasi-pembayaran
+Route -> Controller : verifyPayment(orderNumber)
+activate Controller
+
+Controller -> DB : DB::transaction()
+activate DB
+
+Controller -> ModelProduct : lockForUpdate()->whereIn(order_items)->get()
+activate ModelProduct
+ModelProduct -> DB : SELECT ... FOR UPDATE (mengunci baris produk pesanan)
+DB --> ModelProduct : Kumpulan Data Produk Terkunci
+ModelProduct --> Controller : Kumpulan Objek Produk
+deactivate ModelProduct
+
+Controller -> Controller : Validasi kecukupan stok produk fisik
+
+alt Stok Habis
+    Controller -> DB : Rollback Transaction
+    Controller --> Page : Redirect back dengan pesan error stok
+    Page --> User : Tampilkan notifikasi kegagalan verifikasi (stok habis)
+else Stok Cukup
+    Controller -> DB : UPDATE `payments` SET verification_status = 'verified'
+    Controller -> DB : UPDATE `orders` SET order_status = 'paid'
+    Controller -> DB : UPDATE `products` SET stock = stock - quantity (potong stok otomatis)
+    Controller -> DB : INSERT `stock_movements` (catat tipe mutasi 'out' dengan ref_id pesanan)
+    Controller -> DB : INSERT `order_status_histories` (catat status 'paid')
+    
+    Controller -> DB : Commit Transaction
+    deactivate DB
+    
+    Controller --> Page : Redirect back (Inertia Response)
+    deactivate Controller
+    Page --> User : Tampilan status pesanan berubah menjadi "Lunas (Paid)"
+end
+@enduml
+
+' ==========================================
+
+@startuml sequence-order-status-update
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 6. Sequence Diagram - Pengelolaan Status Pesanan
+
+actor "Operator / Admin" as User
+participant "OrderDetail (React)" as Page
+participant "web.php (Route)" as Route
+participant "OperatorOrderController" as Controller
+participant "Order (Model)" as ModelOrder
+database "MySQL" as DB
+
+User -> Page : Memilih status baru pada dropdown & klik "Perbarui Status"
+Page -> Route : PUT /kelola/pesanan/{orderNumber}/status (status_baru, catatan)
+Route -> Controller : updateStatus(orderNumber, Request)
+activate Controller
+
+Controller -> Controller : Validasi kewenangan peran (Operator/Admin)
+
+Controller -> ModelOrder : where('order_number', orderNumber)->firstOrFail()
+activate ModelOrder
+ModelOrder -> DB : Query data pesanan
+DB --> ModelOrder : Objek Pesanan
+ModelOrder --> Controller : Objek Pesanan
+deactivate ModelOrder
+
+Controller -> Controller : Validasi keabsahan alur transisi status\n(contoh: dari 'paid' wajib ke 'processing')
+
+alt Transisi Tidak Sah
+    Controller --> Page : Redirect back dengan pesan error transisi ilegal
+    Page --> User : Tampilkan peringatan alur tidak sesuai
+else Transisi Sah
+    Controller -> DB : DB::transaction()
+    activate DB
+    
+    Controller -> DB : UPDATE `orders` SET order_status = status_baru
+    
+    alt Status == 'completed'
+        Controller -> DB : UPDATE `orders` SET completed_at = now()
+    end
+    
+    Controller -> DB : INSERT `order_status_histories` (catat status baru & operator_id)
+    Controller -> DB : Commit Transaction
+    deactivate DB
+    
+    Controller --> Page : Redirect back (Inertia Response)
+    deactivate Controller
+    Page --> User : Tampilan lini masa status terupdate secara dinamis
+end
+@enduml
+
+' ==========================================
+
+@startuml sequence-product-creation
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 7. Sequence Diagram - Tambah Produk Baru (Admin CRUD)
+
+actor "Administrator" as User
+participant "ProductForm (React)" as Page
+participant "web.php (Route)" as Route
+participant "ProductController" as Controller
+participant "ProductRequest" as Request
+participant "ProductPolicy" as Policy
+participant "Product (Model)" as ModelProduct
+database "MySQL" as DB
+
+User -> Page : Mengisi form produk & mengunggah foto bunga
+User -> Page : Menekan tombol "Simpan"
+Page -> Route : POST /admin/produk (data produk)
+Route -> Controller : store(ProductRequest)
+activate Controller
+
+Controller -> Request : Validasi input form (harga, stok, format gambar)
+activate Request
+Request --> Controller : Validasi sukses
+deactivate Request
+
+Controller -> Policy : authorize('create', Product::class)
+activate Policy
+Policy --> Controller : Diizinkan (User adalah Admin)
+deactivate Policy
+
+Controller -> Controller : Unggah foto produk ke disk server (`storage/app/public/products/`)
+
+Controller -> ModelProduct : create(data_produk_dan_foto)
+activate ModelProduct
+ModelProduct -> DB : INSERT `products` (nama, price, stock, image_path, is_active)
+DB --> ModelProduct : Objek Produk Baru
+ModelProduct --> Controller : Objek Produk Baru
+deactivate ModelProduct
+
+Controller --> Page : Redirect ke /admin/produk dengan flash success
+deactivate Controller
+Page --> User : Tampilkan daftar produk terbaru dengan baris baru tersemat
+@enduml
+
+' ==========================================
+
+@startuml sequence-stock-adjustment
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 8. Sequence Diagram - Penyesuaian Stok Bunga (Manual)
+
+actor "Operator / Admin" as User
+participant "StockOverview (React)" as Page
+participant "web.php (Route)" as Route
+participant "StockController" as Controller
+participant "Product (Model)" as ModelProduct
+database "MySQL" as DB
+
+User -> Page : Memilih tambah/kurang stok, isi kuantitas & alasan
+User -> Page : Menekan tombol "Simpan Penyesuaian"
+Page -> Route : POST /kelola/stok/penyesuaian (product_id, tipe, jumlah, catatan)
+Route -> Controller : adjust(Request)
+activate Controller
+
+Controller -> Controller : Validasi input (catatan wajib, jumlah > 0)
+
+Controller -> DB : DB::transaction()
+activate DB
+
+Controller -> ModelProduct : lockForUpdate()->findOrFail(product_id)
+activate ModelProduct
+ModelProduct -> DB : SELECT ... FOR UPDATE (kunci baris produk)
+DB --> ModelProduct : Objek Produk Terkunci
+ModelProduct --> Controller : Objek Produk Terkunci
+deactivate ModelProduct
+
+Controller -> Controller : Hitung kalkulasi stok akhir (sebelum +/- selisih)
+
+alt Stok Akhir Negatif (< 0)
+    Controller -> DB : Rollback Transaction
+    Controller --> Page : Redirect back dengan pesan error stok negatif
+    Page --> User : Tampilkan notifikasi "Penyesuaian dibatalkan, stok tidak boleh < 0"
+else Stok Akhir Valid
+    Controller -> DB : UPDATE `products` SET stock = stok_akhir
+    Controller -> DB : INSERT `stock_movements` (catat tipe 'adjustment', log audit, & staff_id)
+    Controller -> DB : Commit Transaction
+    deactivate DB
+    
+    Controller --> Page : Redirect back (Inertia Response)
+    deactivate Controller
+    Page --> User : Tampilan jumlah stok & tabel histori log mutasi terupdate
+end
+@enduml
+
+' ==========================================
+
+@startuml sequence-report-generation
+autonumber
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ParticipantBackgroundColor #F7F4EB
+skinparam ParticipantBorderColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ArrowColor #10B981
+
+title 9. Sequence Diagram - Penyaringan Laporan Keuangan
+
+actor "Administrator" as User
+participant "SalesReport (React)" as Page
+participant "web.php (Route)" as Route
+participant "ReportController" as Controller
+database "MySQL" as DB
+
+User -> Page : Menentukan filter tanggal/status & klik "Terapkan Filter"
+Page -> Route : GET /admin/laporan (tanggal_mulai, tanggal_selesai, status)
+Route -> Controller : index(Request)
+activate Controller
+
+Controller -> Controller : Validasi kewenangan peran (Admin Only)
+
+Controller -> DB : Query tabel `orders` terfilter & menghitung metrik keuangan\n(total omset lunas, jumlah transaksi, produk terlaris)
+activate DB
+DB --> Controller : Kumpulan data transaksi & agregasi metrik
+deactivate DB
+
+Controller --> Page : Render komponen SalesReport (Inertia Response Props)
+deactivate Controller
+Page --> User : Perbarui tampilan grafik area Recharts & tabel rincian transaksi di layar
+@enduml

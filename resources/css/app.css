@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Custom Selection Styling */
+    ::selection {
+        @apply bg-primary-soft text-primary-dark;
+    }
+
+    /* Editorial Serif Headings */
+    h1, h2, h3, h4, h5, h6, .font-serif {
+        font-family: 'Libre Caslon Text', Georgia, serif;
+    }
+
+    /* Clean Sans-Serif Body and UI */
+    body, .font-sans {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+}
+
+@layer utilities {
+    /* Premium custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-brandSurface-low;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
+    }
+}

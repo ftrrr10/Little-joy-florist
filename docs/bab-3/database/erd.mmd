@@ -1,0 +1,151 @@
+erDiagram
+    users {
+        bigint id PK
+        string name
+        string email UK
+        string phone
+        string password
+        string role
+        text address
+        boolean is_active
+        timestamp email_verified_at
+        string remember_token
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    categories {
+        bigint id PK
+        string name
+        string slug UK
+        text description
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    products {
+        bigint id PK
+        bigint category_id FK
+        string name
+        string slug UK
+        text description
+        decimal price
+        integer stock
+        string image_path
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    carts {
+        bigint id PK
+        bigint user_id FK UK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    cart_items {
+        bigint id PK
+        bigint cart_id FK
+        bigint product_id FK
+        integer quantity
+        decimal unit_price
+        decimal subtotal
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    orders {
+        bigint id PK
+        string order_number UK
+        bigint user_id FK
+        timestamp order_date
+        date delivery_date
+        string recipient_name
+        string recipient_phone
+        text delivery_address
+        text greeting_message
+        text customer_note
+        text operator_note
+        decimal subtotal
+        decimal delivery_fee
+        decimal total
+        string payment_status
+        string order_status
+        timestamp cancelled_at
+        timestamp completed_at
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    order_items {
+        bigint id PK
+        bigint order_id FK
+        bigint product_id FK
+        string product_name
+        decimal unit_price
+        integer quantity
+        decimal subtotal
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    payments {
+        bigint id PK
+        bigint order_id FK UK
+        string payment_method
+        string destination_bank
+        string sender_bank
+        string account_holder_name
+        decimal amount
+        date transfer_date
+        string proof_path
+        string verification_status
+        bigint verified_by FK
+        timestamp verified_at
+        text rejection_note
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    order_status_histories {
+        bigint id PK
+        bigint order_id FK
+        string previous_status
+        string current_status
+        text note
+        bigint changed_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    stock_movements {
+        bigint id PK
+        bigint product_id FK
+        string movement_type
+        integer quantity
+        integer stock_before
+        integer stock_after
+        string reference_type
+        bigint reference_id
+        text note
+        bigint created_by FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    users ||--o| carts : "memiliki"
+    users ||--o{ orders : "melakukan"
+    categories ||--o{ products : "berisi"
+    carts ||--o{ cart_items : "berisi"
+    products ||--o{ cart_items : "ditambahkan ke"
+    orders ||--o| payments : "memiliki"
+    orders ||--|{ order_items : "berisi"
+    products ||--o{ order_items : "dipesan di"
+    orders ||--|{ order_status_histories : "mencatat"
+    users ||--o{ order_status_histories : "mengubah"
+    users ||--o{ payments : "memverifikasi"
+    products ||--o{ stock_movements : "mencatat"
+    users ||--o{ stock_movements : "menyesuaikan"

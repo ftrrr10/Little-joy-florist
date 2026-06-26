@@ -1,0 +1,88 @@
+graph TD
+    %% Styling
+    classDef public fill:#F7F4EB,stroke:#022C22,stroke-width:2px,color:#022C22;
+    classDef customer fill:#EFECE2,stroke:#10B981,stroke-width:2px,color:#022C22;
+    classDef operator fill:#E6F4EA,stroke:#059669,stroke-width:2px,color:#022C22;
+    classDef admin fill:#D1E7DD,stroke:#047857,stroke-width:2px,color:#022C22;
+    classDef root fill:#022C22,stroke:#022C22,stroke-width:2px,color:#FFFFFF;
+
+    %% Nodes Definition
+    Root[Sitemap Little Joy Florist] :::root
+
+    %% Public Branch
+    SubPublic[1. Portal Publik / Tamu] :::public
+    Root --> SubPublic
+    
+    P_Home[Beranda] :::public
+    P_Catalog[Katalog Produk] :::public
+    P_Detail[Detail Produk] :::public
+    P_About[Tentang Kami] :::public
+    P_Contact[Kontak Kami] :::public
+    P_Login[Halaman Login] :::public
+    P_Register[Halaman Registrasi] :::public
+    
+    SubPublic --> P_Home
+    SubPublic --> P_Catalog
+    SubPublic --> P_Detail
+    SubPublic --> P_About
+    SubPublic --> P_Contact
+    SubPublic --> P_Login
+    SubPublic --> P_Register
+
+    %% Customer Branch
+    SubCustomer[2. Portal Pelanggan] :::customer
+    Root --> SubCustomer
+    
+    C_Cart[Keranjang Belanja] :::customer
+    C_Checkout[Checkout Pesanan] :::customer
+    C_Success[Pesanan Berhasil] :::customer
+    C_History[Riwayat Pesanan] :::customer
+    C_Detail[Detail Pesanan & Timeline] :::customer
+    C_Payment[Upload Bukti Pembayaran] :::customer
+    C_Profile[Profil Saya] :::customer
+    
+    SubCustomer --> C_Cart
+    SubCustomer --> C_Checkout
+    SubCustomer --> C_Success
+    SubCustomer --> C_History
+    SubCustomer --> C_Detail
+    SubCustomer --> C_Payment
+    SubCustomer --> C_Profile
+
+    %% Operator Branch
+    SubOperator[3. Portal Operator Florist] :::operator
+    Root --> SubOperator
+    
+    O_Dashboard[Dashboard Kerja] :::operator
+    O_Orders[Daftar Pesanan Masuk] :::operator
+    O_Detail[Detail Pesanan & Bukti] :::operator
+    O_Verify[Persetujuan / Penolakan Pembayaran] :::operator
+    O_Stock[Pemantauan & Penyesuaian Stok] :::operator
+    
+    SubOperator --> O_Dashboard
+    SubOperator --> O_Orders
+    SubOperator --> O_Detail
+    SubOperator --> O_Verify
+    SubOperator --> O_Stock
+
+    %% Admin Branch
+    SubAdmin[4. Portal Administrator] :::admin
+    Root --> SubAdmin
+    
+    A_Dashboard[Dashboard Analitik & Tren] :::admin
+    A_Orders[Kelola Pesanan] :::admin
+    A_Categories[Kelola Kategori Bunga] :::admin
+    A_Products[Kelola Produk Bunga] :::admin
+    A_Stock[Kelola Penyesuaian Stok] :::admin
+    A_Customers[Inspeksi Data Pelanggan] :::admin
+    A_Operators[Kelola Data Operator] :::admin
+    A_Reports[Laporan Penjualan & Ekspor CSV] :::admin
+    
+    SubAdmin --> A_Dashboard
+    SubAdmin --> A_Orders
+    SubAdmin --> A_Categories
+    SubAdmin --> A_Products
+    SubAdmin --> A_Stock
+    SubAdmin --> A_Customers
+    SubAdmin --> A_Operators
+    SubAdmin --> A_Reports

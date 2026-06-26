@@ -1,0 +1,95 @@
+@startuml
+left to right direction
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam UseCaseBackgroundColor #F7F4EB
+skinparam UseCaseBorderColor #022C22
+skinparam UseCaseFontColor #022C22
+skinparam ActorBackgroundColor #F7F4EB
+skinparam ActorBorderColor #022C22
+skinparam ActorFontColor #022C22
+skinparam ArrowColor #10B981
+
+title Diagram Use Case - Sistem Informasi Pemesanan Bunga Little Joy Jakarta
+
+actor "Tamu (Guest)" as Guest
+actor "Pelanggan (Customer)" as Customer
+actor "Operator Florist" as Operator
+actor "Administrator" as Admin
+
+rectangle "Sistem Informasi Pemesanan Little Joy" {
+    ' Use Cases Tamu
+    usecase "Melihat Beranda" as UC_Home
+    usecase "Melihat Katalog Bunga" as UC_Catalog
+    usecase "Mencari & Memfilter Produk" as UC_Search
+    usecase "Melihat Detail Bunga" as UC_Detail
+    usecase "Melakukan Registrasi" as UC_Register
+    usecase "Melakukan Login" as UC_Login
+
+    ' Use Cases Pelanggan
+    usecase "Mengelola Profil" as UC_Profile
+    usecase "Mengelola Keranjang Belanja" as UC_Cart
+    usecase "Melakukan Checkout" as UC_Checkout
+    usecase "Mengunggah Bukti Pembayaran" as UC_UploadPayment
+    usecase "Melihat Riwayat Pesanan" as UC_OrderHistory
+    usecase "Melihat Detail Pesanan & Timeline" as UC_OrderDetail
+    usecase "Membatalkan Pesanan" as UC_CancelOrder
+
+    ' Use Cases Operator
+    usecase "Melihat Dashboard Operasional" as UC_OpDashboard
+    usecase "Mengelola Status Pesanan" as UC_ManageOrderStatus
+    usecase "Melakukan Verifikasi Pembayaran" as UC_VerifyPayment
+    usecase "Melakukan Penolakan Pembayaran" as UC_RejectPayment
+    usecase "Memantau Stok Bunga" as UC_MonitorStock
+
+    ' Use Cases Admin
+    usecase "Mengelola Kategori Bunga" as UC_ManageCategories
+    usecase "Mengelola Produk Bunga" as UC_ManageProducts
+    usecase "Mengelola Inventori & Penyesuaian Stok" as UC_ManageStock
+    usecase "Mengelola Data Operator Staf" as UC_ManageOperators
+    usecase "Melihat Laporan Penjualan" as UC_ViewReports
+    usecase "Melihat Dashboard Analitik" as UC_AdminDashboard
+
+    ' Hubungan Include / Extend
+    UC_Checkout .> UC_Login : <<include>>
+    UC_UploadPayment .> UC_OrderHistory : <<include>>
+    UC_VerifyPayment .> UC_ManageOrderStatus : <<include>>
+    UC_RejectPayment .> UC_ManageOrderStatus : <<include>>
+}
+
+' Asosiasi Tamu
+Guest --> UC_Home
+Guest --> UC_Catalog
+Guest --> UC_Search
+Guest --> UC_Detail
+Guest --> UC_Register
+Guest --> UC_Login
+
+' Asosiasi Pelanggan
+Customer --> UC_Profile
+Customer --> UC_Cart
+Customer --> UC_Checkout
+Customer --> UC_UploadPayment
+Customer --> UC_OrderHistory
+Customer --> UC_OrderDetail
+Customer --> UC_CancelOrder
+
+' Asosiasi Operator
+Operator --> UC_OpDashboard
+Operator --> UC_ManageOrderStatus
+Operator --> UC_VerifyPayment
+Operator --> UC_RejectPayment
+Operator --> UC_MonitorStock
+
+' Asosiasi Admin (Mewarisi kemampuan Operator secara konseptual, namun digambarkan eksplisit agar jelas dalam skripsi)
+Admin --> UC_AdminDashboard
+Admin --> UC_ManageCategories
+Admin --> UC_ManageProducts
+Admin --> UC_ManageStock
+Admin --> UC_ManageOperators
+Admin --> UC_ViewReports
+
+' Admin juga bisa melakukan semua tugas Operator
+Admin -up-|> Operator
+
+@enduml

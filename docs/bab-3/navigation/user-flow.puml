@@ -1,0 +1,228 @@
+@startuml user-flow-guest-checkout
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 1. User Flow - Tamu ke Checkout Sukses (Guest to Completed Checkout)
+
+start
+:Masuk ke Beranda Little Joy;
+:Membuka Katalog & Memilih Buket Bunga;
+:Mengatur Kuantitas & Klik "Masukkan Ke Keranjang";
+if (Apakah Tamu memiliki akun?) then (Tidak)
+    :Mengisi Form Registrasi Baru;
+    :Akun terdaftar otomatis;
+else (Ya)
+    :Memasukkan Email & Password;
+    :Autentikasi sesi berhasil;
+fi
+
+:Membuka Keranjang Belanja;
+:Memeriksa Rincian & Klik "Checkout";
+:Mengisi Formulir Pengiriman\n(Penerima, Alamat, Tanggal Kirim, Pesan Kartu);
+:Menekan Tombol "Konfirmasi Pesanan";
+
+if (Apakah stok produk masih mencukupi?) then (Ya)
+    :Sistem memproses data pesanan;\nNomor pesanan terbentuk (LJ-YYYYMMDD-XXXX);\nKeranjang belanja dikosongkan;
+    :Melihat halaman Checkout Success\ndengan rincian instruksi rekening bank;
+    stop
+else (Tidak - Kehabisan)
+    :Sistem menolak checkout;\nKembali ke keranjang belanja dengan pesan kesalahan;
+    :Mengubah kuantitas / memilih produk lain;
+    stop
+fi
+@enduml
+
+' ==========================================
+
+@startuml user-flow-payment-upload
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 2. User Flow - Pelanggan Mengunggah Bukti Pembayaran
+
+start
+:Login ke akun Pelanggan;
+:Mengakses halaman "Riwayat Pesanan";
+:Memilih transaksi berstatus "Menunggu Pembayaran" / "Ditolak";
+:Mengklik tombol "Upload Bukti Pembayaran";
+:Mengisi Nama Pengirim, Bank Asal, Bank Tujuan, & Nominal;
+:Memilih berkas gambar bukti transfer bank;
+:Menekan tombol "Kirim Pembayaran";
+
+if (Apakah format berkas gambar & ukuran <= 2MB?) then (Ya)
+    :Sistem mengunggah gambar ke server;\nMembuat/update baris data di `payments`;\nMengubah status pesanan menjadi `waiting_verification`;
+    :Melihat notifikasi sukses;\nStatus pesanan berubah menjadi "Menunggu Verifikasi";
+    stop
+else (Tidak - File Rusak/Besar)
+    :Sistem menolak berkas;\nMenampilkan pesan validasi error di layar;
+    :Memilih ulang berkas gambar bukti yang sesuai;
+    stop
+fi
+@enduml
+
+' ==========================================
+
+@startuml user-flow-operator-verify
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 3. User Flow - Operator Memverifikasi Bukti Pembayaran
+
+start
+:Login ke akun Operator / Admin;
+:Mengakses Dashboard Operasional;
+:Membuka antrean "Menunggu Verifikasi";
+:Membuka detail pesanan terkait;
+:Memeriksa validitas gambar bukti transfer & mutasi bank;
+
+if (Apakah transfer dana valid & nominal sesuai?) then (Ya - Setujui)
+    :Mengklik tombol "Verifikasi Pembayaran";
+    if (Apakah stok produk mencukupi?) then (Ya)
+        :Sistem memotong stok produk;\nSet status pembayaran = verified;\nSet status pesanan = paid;
+        :Melihat status pesanan berubah menjadi "Lunas (Paid)";
+        stop
+    else (Tidak - Habis)
+        :Sistem menggagalkan verifikasi;\nMenampilkan pesan kesalahan stok habis;
+        stop
+    fi
+else (Tidak - Tolak)
+    :Mengklik tombol "Tolak Pembayaran";
+    :Menulis alasan penolakan pada kolom dialog;
+    :Menekan tombol "Konfirmasi Tolak";
+    :Sistem menyimpan alasan penolakan;\nSet status pembayaran = rejected;\nSet status pesanan = rejected;
+    :Melihat status pesanan berubah menjadi "Ditolak";
+    stop
+fi
+@enduml
+
+' ==========================================
+
+@startuml user-flow-operator-processing
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 4. User Flow - Pengerjaan Rangkaian Bunga Oleh Operator
+
+start
+:Membuka Dashboard Operasional Staf;
+:Memeriksa antrean pengerjaan pesanan "Paid" (Lunas);
+:Mulai merangkai bunga & pilih status "Processing" (Diproses);
+:Bunga selesai dirangkai & pilih status "Ready" (Siap Kirim);
+:Menyerahkan bunga ke kurir & pilih status "Shipped" (Dikirim);
+:Kurir mengonfirmasi bunga diterima pelanggan;
+:Menekan konfirmasi selesai & pilih status "Completed" (Selesai);
+:Sistem memperbarui data waktu selesai pesanan (`completed_at`);
+stop
+@enduml
+
+' ==========================================
+
+@startuml user-flow-admin-product-create
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 5. User Flow - Admin Menambahkan Produk Baru (CRUD)
+
+start
+:Login sebagai Administrator;
+:Membuka Dashboard Admin;
+:Mengakses halaman "Daftar Produk";
+:Mengklik tombol "Tambah Produk Baru";
+:Menginput Nama Bunga, Kategori, Harga, & Ketersediaan Stok;
+:Memilih berkas gambar foto produk;
+:Menekan tombol "Simpan";
+
+if (Apakah input harga/stok >= 0 & gambar valid?) then (Ya)
+    :Sistem mengunggah gambar ke server;\nMenyimpan record baru ke tabel `products`;
+    :Melihat notifikasi sukses;\nProduk baru tersemat di tabel daftar produk;
+    stop
+else (Tidak)
+    :Sistem menolak penyimpanan;\nMenampilkan pesan validasi error di atas formulir;
+    :Memperbaiki input yang salah & klik simpan kembali;
+    stop
+fi
+@enduml
+
+' ==========================================
+
+@startuml user-flow-admin-report-review
+skinparam Style strictuml
+skinparam DefaultFontName "Plus Jakarta Sans"
+skinparam ActivityBackgroundColor #F7F4EB
+skinparam ActivityBorderColor #022C22
+skinparam ActivityFontColor #022C22
+skinparam ArrowColor #10B981
+skinparam StartColor #10B981
+skinparam EndColor #EF4444
+skinparam DiamondBackgroundColor #F7F4EB
+skinparam DiamondBorderColor #022C22
+skinparam DiamondFontColor #022C22
+
+title 6. User Flow - Admin Meninjau Laporan Penjualan
+
+start
+:Login sebagai Administrator;
+:Membuka menu "Laporan Keuangan" pada dashboard;
+:Melihat statistik grafik tren area & tabel rincian transaksi;
+if (Apakah ingin menyaring data?) then (Ya)
+    :Mengisi tanggal mulai/selesai & filter status pesanan;
+    :Menekan tombol "Terapkan Filter";
+    :Sistem memuat ulang grafik & tabel secara real-time;
+else (Tidak)
+fi
+
+if (Apakah ingin mengekspor data?) then (Ekspor CSV)
+    :Menekan tombol "Ekspor CSV";
+    :Sistem mengunduh berkas `.csv` terkompresi;
+else (Cetak Fisik / PDF)
+    :Menekan tombol "Cetak Laporan";
+    :Sistem mengaktifkan layout cetak bebas navigasi;\nMenampilkan print dialog sistem operasi;
+    :Mencetak kertas / Menyimpan file PDF;
+fi
+stop
+@enduml
