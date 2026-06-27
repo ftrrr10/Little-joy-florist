@@ -39,7 +39,7 @@ def encode_plantuml(text):
 
 def generate_svg(puml_content, output_path):
     encoded = encode_plantuml(puml_content)
-    url = f"http://www.plantuml.com/plantuml/svg/{encoded}"
+    url = f"http://www.plantuml.com/plantuml/svg/~1{encoded}"
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req) as response:

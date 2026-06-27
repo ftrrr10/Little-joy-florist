@@ -254,7 +254,7 @@ split
         :Kirim flash session sukses;
     else (Tidak)
         :Kirim flash session error stok;
-    fi
+    endif
 split again
     :Menekan tombol Hapus Item (ikon tempat sampah);
     |Sistem (Laravel Backend)|
@@ -545,7 +545,7 @@ split
     else (Tidak)
         :Kembali ke form dengan pesan error;
         stop
-    fi
+    endif
 split again
     :Menekan tombol "Edit" pada produk;
     :Mengubah data produk & mengunggah gambar baru (*optional*);
@@ -562,7 +562,7 @@ split again
     else (Tidak)
         :Kembali ke form dengan pesan error;
         stop
-    fi
+    endif
 split again
     :Menekan tombol "Hapus" pada salah satu produk;
     |Sistem (Laravel Backend)|

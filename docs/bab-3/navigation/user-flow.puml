@@ -23,7 +23,7 @@ if (Apakah Tamu memiliki akun?) then (Tidak)
 else (Ya)
     :Memasukkan Email & Password;
     :Autentikasi sesi berhasil;
-fi
+endif
 
 :Membuka Keranjang Belanja;
 :Memeriksa Rincian & Klik "Checkout";
@@ -38,7 +38,7 @@ else (Tidak - Kehabisan)
     :Sistem menolak checkout;\nKembali ke keranjang belanja dengan pesan kesalahan;
     :Mengubah kuantitas / memilih produk lain;
     stop
-fi
+endif
 @enduml
 
 ' ==========================================
@@ -75,7 +75,7 @@ else (Tidak - File Rusak/Besar)
     :Sistem menolak berkas;\nMenampilkan pesan validasi error di layar;
     :Memilih ulang berkas gambar bukti yang sesuai;
     stop
-fi
+endif
 @enduml
 
 ' ==========================================
@@ -111,7 +111,7 @@ if (Apakah transfer dana valid & nominal sesuai?) then (Ya - Setujui)
     else (Tidak - Habis)
         :Sistem menggagalkan verifikasi;\nMenampilkan pesan kesalahan stok habis;
         stop
-    fi
+    endif
 else (Tidak - Tolak)
     :Mengklik tombol "Tolak Pembayaran";
     :Menulis alasan penolakan pada kolom dialog;
@@ -119,7 +119,7 @@ else (Tidak - Tolak)
     :Sistem menyimpan alasan penolakan;\nSet status pembayaran = rejected;\nSet status pesanan = rejected;
     :Melihat status pesanan berubah menjadi "Ditolak";
     stop
-fi
+endif
 @enduml
 
 ' ==========================================
@@ -185,7 +185,7 @@ else (Tidak)
     :Sistem menolak penyimpanan;\nMenampilkan pesan validasi error di atas formulir;
     :Memperbaiki input yang salah & klik simpan kembali;
     stop
-fi
+endif
 @enduml
 
 ' ==========================================
@@ -214,7 +214,7 @@ if (Apakah ingin menyaring data?) then (Ya)
     :Menekan tombol "Terapkan Filter";
     :Sistem memuat ulang grafik & tabel secara real-time;
 else (Tidak)
-fi
+endif
 
 if (Apakah ingin mengekspor data?) then (Ekspor CSV)
     :Menekan tombol "Ekspor CSV";
@@ -223,6 +223,6 @@ else (Cetak Fisik / PDF)
     :Menekan tombol "Cetak Laporan";
     :Sistem mengaktifkan layout cetak bebas navigasi;\nMenampilkan print dialog sistem operasi;
     :Mencetak kertas / Menyimpan file PDF;
-fi
+endif
 stop
 @enduml
