@@ -12,7 +12,6 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Operator\OrderController as OperatorOrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +25,7 @@ Route::get('/', function () {
         ->take(4)
         ->get();
     $categories = \App\Models\Category::where('is_active', true)->get();
-    return Inertia::render('Public/Home', [
+    return view('public.home', [
         'featuredProducts' => $featuredProducts,
         'categories' => $categories,
     ]);
@@ -37,17 +36,18 @@ Route::get('/katalog', [CatalogueController::class, 'index'])->name('catalogue.i
 Route::get('/katalog/{slug}', [CatalogueController::class, 'show'])->name('catalogue.show');
 
 Route::get('/tentang-kami', function () {
-    return Inertia::render('Public/About');
+    return view('public.about');
 })->name('about');
 
 Route::get('/kontak', function () {
-    return Inertia::render('Public/Contact');
+    return view('public.contact');
 })->name('contact');
 
 /*
 |--------------------------------------------------------------------------
 | Shared Authenticated Routes
 |--------------------------------------------------------------------------
+|
 */
 Route::middleware('auth')->group(function () {
     // Smart dashboard redirector based on role
@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 | Cart & Checkout Portal (Auth and Role: customer, operator, admin)
 |--------------------------------------------------------------------------
+|
 */
 Route::middleware(['auth', 'role:customer,operator,admin'])->group(function () {
     Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
@@ -89,13 +90,14 @@ Route::middleware(['auth', 'role:customer,operator,admin'])->group(function () {
 |--------------------------------------------------------------------------
 | Customer Portal (Auth and Role: customer)
 |--------------------------------------------------------------------------
+|
 */
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/pesanan/{orderNumber}/pembayaran', [PaymentController::class, 'create'])->name('customer.payments.create');
     Route::post('/pesanan/{orderNumber}/pembayaran', [PaymentController::class, 'store'])->name('customer.payments.store');
 
     Route::get('/profil', function () {
-        return Inertia::render('Customer/Profile');
+        return view('customer.profile');
     })->name('customer.profile');
 
     Route::get('/pesanan', [OrderController::class, 'index'])->name('customer.orders.index');
@@ -107,6 +109,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 |--------------------------------------------------------------------------
 | Operator Portal (Auth and Role: operator,admin)
 |--------------------------------------------------------------------------
+|
 */
 Route::middleware(['auth', 'role:operator,admin'])->group(function () {
     Route::get('/dashboard/operator', function () {
@@ -142,7 +145,7 @@ Route::middleware(['auth', 'role:operator,admin'])->group(function () {
             ->limit(5)
             ->get();
 
-        return Inertia::render('Operator/Dashboard', [
+        return view('operator.dashboard', [
             'metrics' => [
                 'waiting_verification' => $waitingVerificationCount,
                 'processing' => $processingCount,

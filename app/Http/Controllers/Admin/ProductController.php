@@ -17,7 +17,7 @@ class ProductController extends Controller
     /**
      * Display a listing of the products.
      */
-    public function index(): Response
+    public function index()
     {
         Gate::authorize('viewAny', Product::class);
 
@@ -26,7 +26,7 @@ class ProductController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return Inertia::render('Admin/ProductList', [
+        return view('admin.products.index', [
             'products' => $products,
         ]);
     }
@@ -34,7 +34,7 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new product.
      */
-    public function create(): Response
+    public function create()
     {
         Gate::authorize('create', Product::class);
 
@@ -42,7 +42,7 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Admin/ProductForm', [
+        return view('admin.products.form', [
             'product' => null,
             'categories' => $categories,
         ]);
@@ -76,7 +76,7 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified product.
      */
-    public function edit(Product $produk): Response
+    public function edit(Product $produk)
     {
         Gate::authorize('update', $produk);
 
@@ -84,7 +84,7 @@ class ProductController extends Controller
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Admin/ProductForm', [
+        return view('admin.products.form', [
             'product' => $produk,
             'categories' => $categories,
         ]);

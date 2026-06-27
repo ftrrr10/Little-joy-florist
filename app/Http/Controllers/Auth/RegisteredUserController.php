@@ -19,9 +19,9 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
+    public function create()
     {
-        return Inertia::render('Auth/Register');
+        return view('auth.register');
     }
 
     /**
@@ -50,6 +50,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('home'));
+        if ($request->filled('redirect_to')) {
+            return redirect($request->input('redirect_to'))
+                ->with('success', 'Pendaftaran berhasil! Akun Anda telah aktif dan Anda dapat melanjutkan transaksi.');
+        }
+
+        return redirect(route('home'))
+            ->with('success', 'Pendaftaran akun berhasil!');
     }
 }

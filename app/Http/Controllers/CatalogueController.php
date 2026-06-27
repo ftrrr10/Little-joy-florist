@@ -10,10 +10,7 @@ use Inertia\Response;
 
 class CatalogueController extends Controller
 {
-    /**
-     * Display the public product catalogue with filters and sorting.
-     */
-    public function index(Request $request): Response
+    public function index(Request $request)
     {
         // 1. Get all active categories for the filter sidebar
         $categories = Category::where('is_active', true)
@@ -60,7 +57,7 @@ class CatalogueController extends Controller
         // 7. Paginate results (12 products per page for catalog grid)
         $products = $query->paginate(12)->withQueryString();
 
-        return Inertia::render('Public/ProductCatalogue', [
+        return view('public.catalogue.index', [
             'products' => $products,
             'categories' => $categories,
             'filters' => $request->only(['search', 'category', 'availability', 'sort']),
@@ -70,7 +67,7 @@ class CatalogueController extends Controller
     /**
      * Display details of a specific product.
      */
-    public function show(string $slug): Response
+    public function show(string $slug)
     {
         // Find by slug, including soft-deleted checks which are handled by Eloquent
         $product = Product::with('category')
@@ -92,7 +89,7 @@ class CatalogueController extends Controller
             ->take(4)
             ->get();
 
-        return Inertia::render('Public/ProductDetail', [
+        return view('public.catalogue.show', [
             'product' => $product,
             'relatedProducts' => $relatedProducts,
         ]);

@@ -21,5 +21,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Share cart count to all views
+        view()->composer('*', function ($view) {
+            $cartCount = 0;
+            if (auth()->check()) {
+                $user = auth()->user();
+                if ($user->cart) {
+                    $cartCount = $user->cart->items()->sum('quantity');
+                }
+            }
+            $view->with('cartCount', $cartCount);
+        });
     }
+
 }

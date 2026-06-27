@@ -22,7 +22,7 @@ class OrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return Inertia::render('Operator/OrderList', [
+        return view('operator.orders.index', [
             'orders' => $orders,
         ]);
     }
@@ -36,7 +36,7 @@ class OrderController extends Controller
             ->with(['user', 'items.product.category', 'payment.verifier', 'histories.actor'])
             ->firstOrFail();
 
-        return Inertia::render('Operator/OrderDetail', [
+        return view('operator.orders.show', [
             'order' => $order,
         ]);
     }

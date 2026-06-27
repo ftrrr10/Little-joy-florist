@@ -54,7 +54,7 @@ class CartController extends Controller
         $deliveryFee = $subtotal > 0 ? self::DELIVERY_FEE : 0;
         $total = $subtotal + $deliveryFee;
 
-        return Inertia::render('Customer/Cart', [
+        return view('customer.cart', [
             'cart' => $cart,
             'items' => $items,
             'subtotal' => (float)$subtotal,

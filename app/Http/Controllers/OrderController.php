@@ -10,9 +10,6 @@ use Inertia\Inertia;
 
 class OrderController extends Controller
 {
-    /**
-     * Display the customer's order history.
-     */
     public function index()
     {
         $orders = Order::where('user_id', auth()->id())
@@ -20,7 +17,7 @@ class OrderController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return Inertia::render('Customer/OrderHistory', [
+        return view('customer.orders.index', [
             'orders' => $orders,
         ]);
     }
@@ -35,7 +32,7 @@ class OrderController extends Controller
             ->with(['items.product.category', 'payment.verifier', 'histories.actor'])
             ->firstOrFail();
 
-        return Inertia::render('Customer/OrderDetail', [
+        return view('customer.orders.show', [
             'order' => $order,
         ]);
     }

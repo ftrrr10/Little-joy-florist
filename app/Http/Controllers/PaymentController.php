@@ -27,7 +27,7 @@ class PaymentController extends Controller
                 ->with('error', 'Pesanan ini tidak memerlukan unggah bukti pembayaran.');
         }
 
-        return Inertia::render('Customer/PaymentUpload', [
+        return view('customer.payments.create', [
             'order' => $order,
         ]);
     }

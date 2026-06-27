@@ -113,7 +113,7 @@ class DashboardController extends Controller
             return $operator;
         });
 
-        return Inertia::render('Admin/Dashboard', [
+        return view('admin.dashboard', [
             'metrics' => [
                 'total_sales' => (float) $totalSales,
                 'orders_today' => $ordersToday,

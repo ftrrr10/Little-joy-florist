@@ -15,7 +15,7 @@ class CategoryController extends Controller
     /**
      * Display a listing of the categories.
      */
-    public function index(): Response
+    public function index()
     {
         Gate::authorize('viewAny', Category::class);
 
@@ -24,7 +24,7 @@ class CategoryController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return Inertia::render('Admin/CategoryList', [
+        return view('admin.categories.index', [
             'categories' => $categories,
         ]);
     }
@@ -32,11 +32,11 @@ class CategoryController extends Controller
     /**
      * Show the form for creating a new category.
      */
-    public function create(): Response
+    public function create()
     {
         Gate::authorize('create', Category::class);
 
-        return Inertia::render('Admin/CategoryForm', [
+        return view('admin.categories.form', [
             'category' => null,
         ]);
     }
@@ -58,11 +58,11 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified category.
      */
-    public function edit(Category $kategori): Response
+    public function edit(Category $kategori)
     {
         Gate::authorize('update', $kategori);
 
-        return Inertia::render('Admin/CategoryForm', [
+        return view('admin.categories.form', [
             'category' => $kategori,
         ]);
     }

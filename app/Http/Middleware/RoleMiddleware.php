@@ -32,8 +32,16 @@ class RoleMiddleware
             ]);
         }
 
-        // 3. Check if the user has one of the required roles
-        if (!$user->hasRole($roles)) {
+        // 3. Flatten and split any comma-separated roles (e.g., "operator,admin" -> ["operator", "admin"])
+        $parsedRoles = [];
+        foreach ($roles as $role) {
+            foreach (explode(',', $role) as $r) {
+                $parsedRoles[] = trim($r);
+            }
+        }
+
+        // 4. Check if the user has one of the required roles
+        if (!$user->hasRole($parsedRoles)) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

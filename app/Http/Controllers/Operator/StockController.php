@@ -27,7 +27,7 @@ class StockController extends Controller
             ->limit(30)
             ->get();
 
-        return Inertia::render('Operator/StockOverview', [
+        return view('operator.stock.index', [
             'products' => $products,
             'movements' => $movements,
         ]);

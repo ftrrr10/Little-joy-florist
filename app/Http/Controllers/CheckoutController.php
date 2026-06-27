@@ -45,7 +45,7 @@ class CheckoutController extends Controller
         $deliveryFee = self::DELIVERY_FEE;
         $total = $subtotal + $deliveryFee;
 
-        return Inertia::render('Customer/Checkout', [
+        return view('customer.checkout', [
             'items' => $items,
             'subtotal' => (float)$subtotal,
             'deliveryFee' => (float)$deliveryFee,
@@ -168,7 +168,7 @@ class CheckoutController extends Controller
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        return Inertia::render('Customer/CheckoutSuccess', [
+        return view('customer.checkout-success', [
             'orderNumber' => $order->order_number,
             'total' => (float)$order->total,
         ]);

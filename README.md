@@ -2,7 +2,7 @@
 
 Repositori ini berisi kode sumber lengkap untuk aplikasi **Sistem Informasi Pemesanan Bunga Little Joy Jakarta**, yang dikembangkan sebagai proyek tugas akhir (Skripsi). Aplikasi ini dirancang untuk menggantikan alur pemesanan manual via WhatsApp menjadi sistem berbasis web terintegrasi yang andal, aman, dan memiliki antarmuka premium dengan bahasa desain **Botanical Heritage**.
 
-Sistem ini menerapkan arsitektur monolitik modern menggunakan **Laravel** di sisi *backend*, **React & TypeScript** di sisi *frontend*, dengan **Inertia.js** sebagai jembatan JSON reaktif yang menghubungkan keduanya secara efisien tanpa memerlukan REST API terpisah.
+Sistem ini menerapkan arsitektur **Full Laravel Blade Monolith** modern, menggunakan **Blade** di sisi *frontend* dikombinasikan dengan **Alpine.js** untuk interaktivitas reaktif, dan **Vite & Tailwind CSS** untuk kompilasi gaya visual premium yang responsif.
 
 ---
 
@@ -20,14 +20,14 @@ Little-joy-florist/
 │   │   │   └── ...                  # Katalog, Keranjang, Checkout, Profil (Public/Customer)
 │   │   ├── Middleware/              # Otorisasi Hak Akses (Breeze & RoleMiddleware)
 │   │   └── Requests/                # Validasi Form Input Sisi Server (Form Requests)
-│   ├── Models/                      # representasi Tabel Database & Relasi Eloquent
+│   ├── Models/                      # Representasi Tabel Database & Relasi Eloquent
 │   ├── Policies/                    # Kebijakan Otorisasi Keamanan Hak Akses Data
 │   └── Services/                    # Logika Bisnis Kompleks & Transaksi Database
 ├── database/
 │   ├── migrations/                  # Berkas Migrasi Skema Tabel Database Fisik
 │   └── seeders/                     # Seeder Data Awal untuk Demo Pengujian
 ├── docs/
-│   └── bab-3/                       # Aset Dokumentasi Lengkap BAB III Skripsi
+│   └── bab-3/                       # Aset Dokumentasi Lengkap BAB III Diagram Skripsi
 │       ├── activity/                # Sumber PlantUML Diagram Aktivitas (Laju Kerja)
 │       ├── architecture/            # Sumber PlantUML Class & Deployment Diagram
 │       ├── database/                # Sumber ERD (Mermaid), LRS (PlantUML), & DBML
@@ -37,18 +37,20 @@ Little-joy-florist/
 │       ├── use-case/                # Sumber Use Case Diagram & Deskripsi Tekstual
 │       ├── diagram-explanations.md  # Narasi Penjelasan Akademis Indonesia Setiap Diagram
 │       └── use-case-descriptions.md # Deskripsi Tekstual Terstruktur 12 Use Case Utama
-├── resources/js/                     # Frontend Single Page Application (React + TSX)
-│   ├── Components/                  # Komponen UI Reusable (Button, Input, ScrollReveal)
-│   ├── Layouts/                     # Tata Letak Halaman (PublicLayout & DashboardLayout)
-│   ├── Pages/                       # Halaman Antarmuka Utama Berdasarkan Portal Peran
-│   │   ├── Public/                  # Beranda, Katalog, Detail Bunga, Tentang Kami
-│   │   ├── Auth/                    # Login, Registrasi, Lupa Password
-│   │   ├── Customer/                # Keranjang, Checkout, Unggah Bayar, Riwayat Order
-│   │   ├── Operator/                # Dashboard Kerja Staf & Antrean Pesanan
-│   │   └── Admin/                   # Dashboard Analitik, Kelola Staf/Pelanggan, Laporan
-│   └── types/                       # Deklarasi Tipe Data Statis TypeScript
+├── resources/
+│   ├── css/                          # Kustomisasi Gaya Visual (Botanical Heritage tokens)
+│   ├── js/                           # Script Utama (Integrasi AlpineJS, Axios, Animate on Scroll)
+│   └── views/                        # Template Halaman Utama (Blade)
+│       ├── admin/                    # Dashboard, Kelola Staf, Pelanggan, Produk, Kategori, Laporan
+│       ├── operator/                 # Dashboard Operator, Antrean Pesanan, Kelola Kartu Stok
+│       ├── customer/                 # Profil, Riwayat Transaksi, Unggah Bayar, Cart, Checkout
+│       ├── public/                   # Landing Page (Home), Katalog Florist, Tentang, Kontak
+│       ├── auth/                     # Form Login, Registrasi, Lupa/Reset Password
+│       ├── components/               # Komponen UI Reusable (Navbar, Footer, Button, Inputs)
+│       └── layouts/                  # Tata Letak Grid & Panel Dashboard Dashboard Layout
 ├── routes/
-│   └── web.php                      # Pemetaan Rute URL Aplikasi & Otorisasi Peran
+│   ├── web.php                      # Pemetaan Rute URL Aplikasi & Otorisasi Peran
+│   └── auth.php                     # Rute Autentikasi Pengguna & Reset Password
 └── tests/Feature/                   # Berkas Pengujian Fitur Backend (PHPUnit)
 ```
 
@@ -78,7 +80,7 @@ composer install
 ```
 
 ### Langkah 3: Instalasi Dependensi Javascript (Frontend)
-Jalankan npm untuk memasang seluruh paket frontend React dan dependensi kompilasi:
+Jalankan npm untuk memasang paket frontend dan pustaka Alpine.js:
 ```bash
 npm install
 ```
@@ -118,20 +120,23 @@ php artisan migrate:fresh --seed
 ```
 *Perintah ini akan secara otomatis membuat 10 tabel fisik utama dan menanamkan data 1 Administrator, 2 Operator, 5 Pelanggan, 5 Kategori, 20 Produk Bunga, serta beberapa pesanan awal, log histori, dan kartu stok mutasi.*
 
-### Langkah 8: Jalankan Server Pengembangan
-Anda harus menjalankan **dua server secara bersamaan** di terminal terpisah:
+### Langkah 8: Kompilasi Aset Frontend (Vite)
+Jalankan build Vite untuk mengompilasi CSS dan JS untuk pertama kalinya:
+```bash
+npm run build
+```
 
-1.  **Terminal 1 (Server PHP Laravel)**:
-    ```bash
-    php artisan serve
-    ```
-    *Aplikasi akan dapat diakses di browser melalui alamat: `http://127.0.0.1:8000`*
+### Langkah 9: Jalankan Server Pengembangan
+Jalankan server PHP Laravel lokal:
+```bash
+php artisan serve
+```
+*Aplikasi akan dapat diakses di browser melalui alamat: `http://127.0.0.1:8000`*
 
-2.  **Terminal 2 (Kompiler Aset Vite)**:
-    ```bash
-    npm run dev
-    ```
-    *Perintah ini mengaktifkan Hot Module Replacement (HMR) untuk pembaruan antarmuka React secara real-time.*
+*(Opsional)* Jika Anda ingin melakukan perubahan pada file CSS atau JS dan ingin dikompilasi secara otomatis, Anda dapat menjalankan Vite Watcher di terminal terpisah:
+```bash
+npm run dev
+```
 
 ---
 
@@ -149,37 +154,25 @@ Gunakan akun-akun berikut yang telah terdaftar di database hasil seeding untuk m
 
 ---
 
-## 4. Prosedur Pengujian Otomatis (Testing)
-
-Aplikasi ini dilengkapi dengan pengujian fitur otomatis komprehensif (*automated feature tests*) berbasis PHPUnit untuk memastikan integritas logika bisnis.
-
-### Persiapan Database Uji
-1.  Buat database tambahan bernama `little_joy_florist_testing` pada server MySQL lokal Anda.
-2.  Jalankan perintah pengujian di terminal:
-    ```bash
-    php artisan test
-    ```
-    *Sistem akan menjalankan **82 pengujian fitur** (420 assertions) yang mencakup validasi registrasi/login, otorisasi peran, keranjang belanja, proses checkout transaksional, pencegahan balapan stok (*race conditions*), unggah bukti bayar, verifikasi/penolakan operator, penyesuaian kartu stok, dan laporan filter penjualan.*
-
----
-
-## 5. Hal-Hal Penting yang Wajib Diperhatikan
+## 4. Hal-Hal Penting yang Wajib Diperhatikan
 
 Untuk menghindari kegagalan sistem saat pengujian atau demonstrasi, perhatikan beberapa aturan teknis yang telah diterapkan:
 
-1.  **Penguncian Stok Transaksional**:
+1.  **Pengunduhan Aset & Build**:
+    *   Karena proyek ini bermigrasi sepenuhnya ke arsitektur monolitik Blade, tidak perlu lagi menjalankan server Node.js terpisah saat aplikasi diuji di staging. Jalankan `npm run build` sekali untuk menyusun aset static produksi, dan server PHP siap melayani seluruh website.
+2.  **Penguncian Stok Transaksional**:
     *   Sistem menggunakan fitur `lockForUpdate()` pada level database saat proses *checkout* dan *verifikasi pembayaran*. Hal ini mencegah terjadinya *oversold* (bunga terjual melebihi stok fisik) ketika ada dua transaksi pemesanan konkuren yang masuk secara bersamaan.
-2.  **Snapshot Riwayat Transaksi**:
+3.  **Snapshot Riwayat Transaksi**:
     *   Ketika pesanan dibuat, sistem menyalin nama produk dan harga satuan ke tabel `order_items` sebagai *snapshot*. Jika Admin mengubah harga produk atau menghapus produk secara logis (*soft delete*) di kemudian hari, data invoice historis pesanan lama milik pelanggan tidak akan pernah berubah atau rusak.
-3.  **Unggah Bukti Transfer**:
+4.  **Unggah Bukti Transfer**:
     *   Berkas gambar bukti transfer dibatasi maksimal **2 MB** dengan ekstensi gambar yang valid (`jpg`, `jpeg`, `png`, `webp`). 
     *   Jika pelanggan melakukan unggah ulang bukti transfer baru (misal karena bukti transfer pertama ditolak oleh operator), sistem secara otomatis menghapus berkas gambar bukti lama dari disk server untuk menghemat kapasitas penyimpanan.
-4.  **Penonaktifan Akun**:
+5.  **Penonaktifan Akun**:
     *   Admin dapat menonaktifkan status keaktifan pelanggan maupun operator (`is_active = false`). Pengguna dengan status tidak aktif akan ditolak login-nya oleh sistem secara otomatis dan sesinya langsung dihapus.
 
 ---
 
-## 6. Pemanfaatan Berkas BAB III Skripsi
+## 5. Pemanfaatan Berkas BAB III Skripsi
 
 Seluruh berkas pemodelan diagram dan dokumen deskripsi akademis disimpan di dalam direktori `docs/bab-3/`.
 

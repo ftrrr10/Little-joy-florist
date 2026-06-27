@@ -28,7 +28,7 @@ class CustomerController extends Controller
             return $customer;
         });
 
-        return Inertia::render('Admin/CustomerList', [
+        return view('admin.customers.index', [
             'customers' => $customers,
         ]);
     }

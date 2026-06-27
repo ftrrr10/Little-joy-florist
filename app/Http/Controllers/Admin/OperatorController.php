@@ -27,7 +27,7 @@ class OperatorController extends Controller
             return $operator;
         });
 
-        return Inertia::render('Admin/OperatorList', [
+        return view('admin.operators.index', [
             'operators' => $operators,
         ]);
     }
