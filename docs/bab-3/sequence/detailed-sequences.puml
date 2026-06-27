@@ -11,7 +11,7 @@ skinparam ArrowColor #10B981
 title 1. Sequence Diagram - Login Pengguna
 
 actor "Pengguna" as User
-participant "LoginPage (React)" as Page
+participant "login.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "LoginController" as Controller
 participant "LoginRequest" as Request
@@ -38,10 +38,10 @@ Controller -> Controller : Verifikasi keaktifan akun (is_active == true)
 
 alt Kredensial Valid & Akun Aktif
     Controller -> Controller : Regenerasi sesi (Auth::login)
-    Controller --> Page : Redirect ke halaman tujuan (Inertia Response)
+    Controller --> Page : Redirect ke halaman tujuan (Redirect Response)
     Page --> User : Tampilan Dashboard / Beranda sesuai role
 else Kredensial Salah / Akun Tidak Aktif
-    Controller --> Page : Redirect back dengan pesan error (Inertia Session)
+    Controller --> Page : Redirect back dengan pesan error (Redirect Back)
     deactivate Controller
     Page --> User : Tampilkan pesan kesalahan di form
 end
@@ -62,7 +62,7 @@ skinparam ArrowColor #10B981
 title 2. Sequence Diagram - Memasukkan Produk Ke Keranjang
 
 actor "Pelanggan" as User
-participant "ProductDetail (React)" as Page
+participant "catalogue/show.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "CartController" as Controller
 participant "CartItemRequest" as Request
@@ -114,7 +114,7 @@ end
 Controller -> DB : Commit Transaction
 deactivate DB
 
-Controller --> Page : Redirect ke /keranjang (Inertia Response)
+Controller --> Page : Redirect ke /keranjang (Redirect Response)
 deactivate Controller
 Page --> User : Tampilan halaman Keranjang Belanja terupdate
 @enduml
@@ -134,7 +134,7 @@ skinparam ArrowColor #10B981
 title 3. Sequence Diagram - Proses Checkout Pesanan
 
 actor "Pelanggan" as User
-participant "CheckoutPage (React)" as Page
+participant "checkout.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "CheckoutController" as Controller
 participant "CheckoutRequest" as Request
@@ -166,7 +166,7 @@ Controller -> Controller : Validasi ketersediaan stok fisik produk\ndan kecocoka
 
 alt Stok Tidak Cukup / Harga Berubah
     Controller -> DB : Rollback Transaction
-    Controller --> Page : Redirect back dengan pesan error stok
+    Controller --> Page : Redirect back dengan pesan error stok (Redirect Back)
     Page --> User : Tampilkan pesan error di Keranjang Belanja
 else Stok Cukup
     Controller -> DB : Query pesanan hari ini untuk sequence nomor
@@ -208,7 +208,7 @@ skinparam ArrowColor #10B981
 title 4. Sequence Diagram - Mengunggah Bukti Pembayaran
 
 actor "Pelanggan" as User
-participant "PaymentUpload (React)" as Page
+participant "payments/create.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "PaymentController" as Controller
 participant "PaymentRequest" as Request
@@ -249,7 +249,7 @@ Controller -> DB : INSERT `order_status_histories` (catat waiting_verification)
 Controller -> DB : Commit Transaction
 deactivate DB
 
-Controller --> Page : Redirect ke detail pesanan (Inertia Response)
+Controller --> Page : Redirect ke detail pesanan (Redirect Response)
 deactivate Controller
 Page --> User : Tampilan status pesanan berubah menjadi "Menunggu Verifikasi"
 @enduml
@@ -269,7 +269,7 @@ skinparam ArrowColor #10B981
 title 5. Sequence Diagram - Verifikasi Pembayaran (Oleh Operator/Admin)
 
 actor "Operator / Admin" as User
-participant "OrderDetail (React)" as Page
+participant "operator/orders/show.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "OperatorOrderController" as Controller
 participant "Product (Model)" as ModelProduct
@@ -306,7 +306,7 @@ else Stok Cukup
     Controller -> DB : Commit Transaction
     deactivate DB
     
-    Controller --> Page : Redirect back (Inertia Response)
+    Controller --> Page : Redirect back (Redirect Response)
     deactivate Controller
     Page --> User : Tampilan status pesanan berubah menjadi "Lunas (Paid)"
 end
@@ -327,7 +327,7 @@ skinparam ArrowColor #10B981
 title 6. Sequence Diagram - Pengelolaan Status Pesanan
 
 actor "Operator / Admin" as User
-participant "OrderDetail (React)" as Page
+participant "operator/orders/show.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "OperatorOrderController" as Controller
 participant "Order (Model)" as ModelOrder
@@ -350,7 +350,7 @@ deactivate ModelOrder
 Controller -> Controller : Validasi keabsahan alur transisi status\n(contoh: dari 'paid' wajib ke 'processing')
 
 alt Transisi Tidak Sah
-    Controller --> Page : Redirect back dengan pesan error transisi ilegal
+    Controller --> Page : Redirect back dengan pesan error transisi ilegal (Redirect Back)
     Page --> User : Tampilkan peringatan alur tidak sesuai
 else Transisi Sah
     Controller -> DB : DB::transaction()
@@ -366,7 +366,7 @@ else Transisi Sah
     Controller -> DB : Commit Transaction
     deactivate DB
     
-    Controller --> Page : Redirect back (Inertia Response)
+    Controller --> Page : Redirect back (Redirect Response)
     deactivate Controller
     Page --> User : Tampilan lini masa status terupdate secara dinamis
 end
@@ -387,7 +387,7 @@ skinparam ArrowColor #10B981
 title 7. Sequence Diagram - Tambah Produk Baru (Admin CRUD)
 
 actor "Administrator" as User
-participant "ProductForm (React)" as Page
+participant "admin/products/form.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "ProductController" as Controller
 participant "ProductRequest" as Request
@@ -420,7 +420,7 @@ DB --> ModelProduct : Objek Produk Baru
 ModelProduct --> Controller : Objek Produk Baru
 deactivate ModelProduct
 
-Controller --> Page : Redirect ke /admin/produk dengan flash success
+Controller --> Page : Redirect ke /admin/produk dengan flash success (Redirect Response)
 deactivate Controller
 Page --> User : Tampilkan daftar produk terbaru dengan baris baru tersemat
 @enduml
@@ -440,7 +440,7 @@ skinparam ArrowColor #10B981
 title 8. Sequence Diagram - Penyesuaian Stok Bunga (Manual)
 
 actor "Operator / Admin" as User
-participant "StockOverview (React)" as Page
+participant "operator/stock/index.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "StockController" as Controller
 participant "Product (Model)" as ModelProduct
@@ -468,7 +468,7 @@ Controller -> Controller : Hitung kalkulasi stok akhir (sebelum +/- selisih)
 
 alt Stok Akhir Negatif (< 0)
     Controller -> DB : Rollback Transaction
-    Controller --> Page : Redirect back dengan pesan error stok negatif
+    Controller --> Page : Redirect back dengan pesan error stok negatif (Redirect Back)
     Page --> User : Tampilkan notifikasi "Penyesuaian dibatalkan, stok tidak boleh < 0"
 else Stok Akhir Valid
     Controller -> DB : UPDATE `products` SET stock = stok_akhir
@@ -476,7 +476,7 @@ else Stok Akhir Valid
     Controller -> DB : Commit Transaction
     deactivate DB
     
-    Controller --> Page : Redirect back (Inertia Response)
+    Controller --> Page : Redirect back (Redirect Response)
     deactivate Controller
     Page --> User : Tampilan jumlah stok & tabel histori log mutasi terupdate
 end
@@ -497,7 +497,7 @@ skinparam ArrowColor #10B981
 title 9. Sequence Diagram - Penyaringan Laporan Keuangan
 
 actor "Administrator" as User
-participant "SalesReport (React)" as Page
+participant "admin/reports/index.blade.php (View)" as Page
 participant "web.php (Route)" as Route
 participant "ReportController" as Controller
 database "MySQL" as DB
@@ -514,7 +514,7 @@ activate DB
 DB --> Controller : Kumpulan data transaksi & agregasi metrik
 deactivate DB
 
-Controller --> Page : Render komponen SalesReport (Inertia Response Props)
+Controller --> Page : Kembalikan HTML View terfilter (HTML Response)
 deactivate Controller
-Page --> User : Perbarui tampilan grafik area Recharts & tabel rincian transaksi di layar
+Page --> User : Perbarui tampilan grafik SVG CSS & tabel rincian transaksi di layar
 @enduml

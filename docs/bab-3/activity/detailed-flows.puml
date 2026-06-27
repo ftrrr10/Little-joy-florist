@@ -128,7 +128,7 @@ title 3. Diagram Aktivitas Detail - Pencarian & Penyaringan Produk
 start
 :Mengakses halaman Katalog ("Koleksi");
 
-|Sistem (Laravel & React)|
+|Sistem (Laravel Monolith)|
 :Melakukan query ke tabel `products`\n(is_active = true & deleted_at = null);
 :Menampilkan daftar seluruh rangkaian bunga;
 
@@ -141,7 +141,7 @@ split again
     :Mengubah opsi pengurutan (terbaru / harga);
 end split
 
-|Sistem (Laravel & React)|
+|Sistem (Laravel Monolith)|
 :Melakukan filter data secara dinamis;
 if (Apakah produk ditemukan?) then (Ya)
     :Menampilkan daftar produk terfilter\npada kartu grid;

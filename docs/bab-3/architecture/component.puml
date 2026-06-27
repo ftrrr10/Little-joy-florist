@@ -6,14 +6,12 @@ skinparam ComponentBorderColor #022C22
 skinparam ComponentFontColor #022C22
 skinparam ArrowColor #10B981
 
-title Diagram Arsitektur Komponen (Laravel + React + Inertia.js)
+title Diagram Arsitektur Komponen (Full Laravel Blade Monolith)
 
-package "Frontend (React Single Page Application)" {
-    component "React Pages & Components\n(JSX/TSX Views)" as ReactUI
-}
-
-package "Inertia.js Protocol" {
-    component "Inertia Bridge\n(JSON HTTP Protocol)" as InertiaBridge
+package "Frontend (Sisi Klien / Client Side)" {
+    component "Blade Views\n(HTML/Tailwind CSS)" as BladeUI
+    component "Alpine.js\n(Reaktivitas UI)" as Alpine
+    component "HTTP Client (Axios / Form)\n(Request Sender)" as HttpClient
 }
 
 package "Backend (Laravel Monolith)" {
@@ -35,8 +33,9 @@ database "MySQL Database" as MySQL
 folder "Laravel Storage\n(storage/app/public/)" as Storage
 
 ' Alur Request & Response
-ReactUI -[#10B981]-> InertiaBridge : 1. Mengirim aksi / navigasi (Inertia.visit)
-InertiaBridge -[#10B981]-> Router : 2. Menyalurkan HTTP Request (X-Inertia)
+BladeUI -[#10B981]-> HttpClient : 1. Mengirim aksi via Form / Tombol Klik
+Alpine -[#10B981]-> HttpClient : Mengirim AJAX request (Axios)
+HttpClient -[#10B981]-> Router : 2. Mengirim HTTP Request (GET/POST/PUT/DELETE)
 Router -[#10B981]-> Controllers : 3. Memetakan rute ke metode controller
 
 Controllers -[#10B981]-> Requests : 4. Memvalidasi data input masuk
@@ -55,7 +54,7 @@ MySQL -[#10B981]-> Models : Mengembalikan baris database
 Services -[#10B981]-> Storage : 9. Menyimpan / menghapus file gambar fisik
 
 ' Alur Response Balik
-Controllers -[#10B981]-> InertiaBridge : 10. Mengirim Inertia::render(Page, Props)
-InertiaBridge -[#10B981]-> ReactUI : 11. Memperbarui props halaman secara reaktif tanpa reload penuh
+Controllers -[#10B981]-> BladeUI : 10. Merender & Mengembalikan berkas HTML (HTML Response)
+Controllers -[#10B981]-> Alpine : Mengembalikan data JSON (JSON Response untuk AJAX)
 
 @enduml

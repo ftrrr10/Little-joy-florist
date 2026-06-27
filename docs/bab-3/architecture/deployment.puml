@@ -10,15 +10,15 @@ skinparam ArrowColor #10B981
 
 title Deployment Diagram - Lingkungan Pengembangan Lokal (Local Development)
 
-node "Perangkat Pengguna\n(Customer / Admin Device)" as ClientDevice {
+node "Perangkat Pengguna\n(Customer / Admin / Operator Device)" as ClientDevice {
     node "Peramban Web\n(Web Browser)" as Browser {
-        artifact "React SPA UI\n(Vite-built Assets)" as ReactAssets
+        artifact "Blade HTML Views\n(CSS & Alpine.js)" as BladeViews
     }
 }
 
 node "Komputer Server Lokal\n(Local Development Computer)" as LocalServer {
-    node "Web & Application Server\n(PHP Herd / Laragon)" as WebServer {
-        artifact "Laravel Application\n(PHP Core Engine)" as LaravelApp
+    node "Web & Application Server\n(PHP Serve / Laragon)" as WebServer {
+        artifact "Laravel Application\n(PHP Monolith Engine)" as LaravelApp
     }
     
     node "Database Server\n(MySQL Server)" as DbServer {
@@ -36,10 +36,10 @@ node "Komputer Server Lokal\n(Local Development Computer)" as LocalServer {
 
 ' Hubungan Komunikasi
 ClientDevice -[#10B981]-> LocalServer : HTTP/HTTPS (Port 8000 / 80)
-Browser -[#10B981]-> WebServer : Request halaman & aset
-ReactAssets <.left.> LaravelApp : Interaksi via Inertia.js (JSON Bridge)
-LaravelApp -[#10B981]-> DbServer : Query SQL (Port 3306)
-LaravelApp -[#10B981]-> FileStorage : Simpan bukti transfer & foto produk (storage:link)
+Browser -[#10B981]-> WebServer : Request halaman, form submit, & aset static
+BladeViews <.[#10B981].> LaravelApp : HTTP Response (HTML & JSON untuk AJAX)
+LaravelApp -[#10B981]-> DbServer : Query SQL via PDO (Port 3306)
+LaravelApp -[#10B981]-> FileStorage : Akses berkas (Foto produk & Bukti transfer)
 phpMyAdmin -[#10B981]-> DbServer : Administrasi & inspeksi tabel database
 
 @enduml

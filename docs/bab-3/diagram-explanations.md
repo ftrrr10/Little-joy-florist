@@ -71,20 +71,20 @@ Dokumen ini memuat narasi penjelasan akademik formal dalam Bahasa Indonesia untu
 ## 5. Detailed Activity Diagrams (Swimlanes)
 
 *   **Tujuan Diagram**: Menyediakan detail alur aktivitas tingkat rendah dengan partisi lajur tanggung jawab (*swimlanes*) untuk memperjelas interaksi antara aktor manusia dan respon balik sistem.
-*   **Aktor atau Komponen**: Pelanggan, Operator, Admin, dan Subsistem Laravel/React.
+*   **Aktor atau Komponen**: Pelanggan, Operator, Admin, dan Subsistem Laravel (Blade & Alpine.js).
 *   **Proses Utama**: Memetakan alur detail 12 fungsi bisnis utama.
 *   **Keputusan Penting (Decision Points)**: Menggambarkan secara visual percabangan logis (kondisi percabangan diamond) pada level backend, seperti penguncian transaksi database (`DB::transaction`) dan penolakan pembayaran.
-*   **Hubungan dengan Sistem yang Diusulkan**: Menjadi panduan bagi programmer dalam menyusun skrip *frontend* (React hooks/state) dan *backend* (pengendali/controller) untuk setiap modul.
+*   **Hubungan dengan Sistem yang Diusulkan**: Menjadi panduan bagi programmer dalam menyusun kode *frontend* (Blade & Alpine.js) dan *backend* (controller) untuk setiap modul.
 
 ---
 
 ## 6. Sequence Diagrams
 
 *   **Tujuan Diagram**: Menggambarkan interaksi dinamis dan kronologis pengiriman pesan (*message passing*) antar komponen perangkat lunak (UI, Route, Controller, Form Request, Policy, Model, Database) dalam memproses aksi pengguna.
-*   **Aktor atau Komponen**: Pengguna, React Page, Laravel Route, Controller, Form Request, Policy, Eloquent Model, dan MySQL Database.
+*   **Aktor atau Komponen**: Pengguna, Blade View (HTML), Laravel Route, Controller, Form Request, Policy, Eloquent Model, dan MySQL Database.
 *   **Proses Utama**: Memetakan 9 skenario transaksi krusial.
 *   **Keputusan Penting (Decision Points)**: Menunjukkan posisi penanganan pengecualian (*exception handling*) dan rollback transaksi pada level basis data MySQL ketika terjadi kegagalan pemrosesan.
-*   **Hubungan dengan Sistem yang Diusulkan**: Membuktikan penerapan arsitektur bersih (*Clean Architecture*) berbasis MVC (Model-View-Controller) pada kerangka kerja Laravel dan React Inertia.
+*   **Hubungan dengan Sistem yang Diusulkan**: Membuktikan penerapan arsitektur bersih (*Clean Architecture*) berbasis MVC (Model-View-Controller) pada kerangka kerja Laravel Monolith.
 
 ---
 
@@ -131,9 +131,9 @@ Dokumen ini memuat narasi penjelasan akademik formal dalam Bahasa Indonesia untu
 ## 11. Component Architecture Diagram
 
 *   **Tujuan Diagram**: Menjelaskan pembagian tanggung jawab arsitektur berlapis (*layered architecture*) sistem dan bagaimana data ditransfer melewati batas antar komponen.
-*   **Aktor atau Komponen**: Lapisan React SPA UI, Inertia Bridge, Laravel Router, Controllers, Form Requests, Policies, Services, Eloquent Models, MySQL, dan Storage.
-*   **Proses Utama**: Aliran permintaan (*request*) dari klik UI melewati validasi dan otorisasi hingga manipulasi database, dan aliran balik respons (*response*) berupa rendering props reaktif Inertia.
-*   **Keputusan Penting (Decision Points)**: Penggunaan protokol Inertia.js sebagai jembatan JSON reaktif tanpa memerlukan REST API terpisah.
+*   **Aktor atau Komponen**: Lapisan Blade View (HTML/CSS/Alpine.js), Laravel Router, Controllers, Form Requests, Policies, Services, Eloquent Models, MySQL, dan Storage.
+*   **Proses Utama**: Aliran permintaan (*request*) dari klik UI melewati validasi dan otorisasi hingga manipulasi database, dan aliran balik respons (*response*) berupa rendering HTML langsung dari server.
+*   **Keputusan Penting (Decision Points)**: Penggunaan arsitektur monolitik murni di mana server merender Blade secara langsung, dikombinasikan dengan Alpine.js untuk interaktivitas reaktif klien.
 *   **Hubungan dengan Sistem yang Diusulkan**: Memberikan gambaran arsitektur tingkat tinggi (*high-level architecture*) yang menjelaskan keunggulan teknis pilihan teknologi yang digunakan.
 
 ---
@@ -144,7 +144,7 @@ Dokumen ini memuat narasi penjelasan akademik formal dalam Bahasa Indonesia untu
 *   **Aktor atau Komponen**: Halaman Publik, Portal Pelanggan, Portal Operator, dan Portal Admin.
 *   **Proses Utama**: Hierarki pohon menu halaman dari tingkat tertinggi hingga halaman detail fungsional.
 *   **Keputusan Penting (Decision Points)**: Pembatasan ketat rute internal (Operator & Admin) agar terpisah secara visual dan fungsional dari rute publik/pelanggan.
-*   **Hubungan dengan Sistem yang Diusulkan**: Menjadi panduan perancangan komponen navigasi global seperti navigasi bar publik (`PublicNavbar`), bilah samping kerja (`DashboardSidebar`), dan menu dropdown profil.
+*   **Hubungan dengan Sistem yang Diusulkan**: Menjadi panduan perancangan komponen navigasi global seperti navigasi bar publik (`layouts/navigation-public`), bilah samping kerja (`layouts/dashboard`), dan menu dropdown profil.
 
 ---
 
