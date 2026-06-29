@@ -172,6 +172,13 @@ Untuk menghindari kegagalan sistem saat pengujian atau demonstrasi, perhatikan b
 6.  **Aset Gambar & Bukti Pembayaran Otomatis**:
     *   Untuk memudahkan kolaborasi antar pengembang, seeder secara otomatis menyalin aset gambar produk yang tersimpan di `database/seeders/assets/products` ke dalam folder penyimpanan publik lokal (`storage/app/public/products`).
     *   Jika gambar bukti transfer (`sample_proof.jpg`) belum tersedia di penyimpanan lokal, seeder akan mendeteksi ketersediaan ekstensi PHP GD dan secara otomatis menggambar struk transfer bank tiruan yang sangat realistis di folder `proofs`. Ini menjamin halaman verifikasi pembayaran pada panel operator tidak pernah menampilkan gambar pecah saat pertama kali dijalankan.
+7.  **Visualisasi Bisnis Interaktif (Chart.js)**:
+    *   Laporan keuangan Admin dilengkapi dengan dua grafik interaktif menggunakan pustaka Chart.js: **Tren Omset Harian** (grafik garis area) dan **Proporsi Produk Terlaris** (grafik donat). Ini mempermudah pemilik toko menganalisis fluktuasi pendapatan secara visual.
+8.  **Sistem Transisi & Pemuatan Global (Page Transition & Loading)**:
+    *   Aplikasi menerapkan bilah kemajuan pemuatan (*global progress loading bar*) di bagian atas layar setiap kali pengguna berpindah halaman, memberikan nuansa reaktif seperti Single Page Application (SPA).
+9.  **Proteksi Formulir dengan Modal Konfirmasi Kustom**:
+    *   Setiap formulir yang melakukan perubahan data krusial (seperti pembaruan profil, pengubahan kata sandi, checkout belanja, dan penyesuaian stok) diproteksi oleh **Modal Konfirmasi Kustom** bernuansa *Botanical Heritage* sebelum data dikirim ke server.
+    *   Setelah dikonfirmasi, tombol pengiriman (*submit*) akan dinonaktifkan secara otomatis dan berubah menjadi status memproses (*loading spinner*) untuk mencegah klik ganda (*double-submit*).
 
 ---
 
