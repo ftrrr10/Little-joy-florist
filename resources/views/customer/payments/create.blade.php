@@ -99,7 +99,7 @@
                     document.getElementById('proof_image').value = '';
                 }
             }">
-                <form action="{{ route('customer.payments.store', $order->order_number) }}" method="POST" enctype="multipart/form-data" class="bg-white border border-brandOutline-soft/30 rounded-2xl p-6 shadow-sm space-y-6">
+                <form action="{{ route('customer.payments.store', $order->order_number) }}" method="POST" enctype="multipart/form-data" class="bg-white border border-brandOutline-soft/30 rounded-2xl p-6 shadow-sm space-y-6" data-confirm="Apakah Anda yakin data transfer sudah sesuai dan ingin mengunggah bukti pembayaran ini?">
                     @csrf
 
                     {{-- Bank Details --}}

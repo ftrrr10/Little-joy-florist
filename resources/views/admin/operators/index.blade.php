@@ -214,7 +214,7 @@
             </div>
 
             {{-- Modal Form --}}
-            <form :action="editingOperator ? '{{ url('admin/operators') }}/' + operatorId : '{{ route('admin.operators.store') }}'" method="POST" class="p-6 space-y-4 font-sans text-xs">
+            <form :action="editingOperator ? '{{ url('admin/operators') }}/' + operatorId : '{{ route('admin.operators.store') }}'" method="POST" class="p-6 space-y-4 font-sans text-xs" data-confirm="Apakah Anda yakin ingin menyimpan data operator ini?">
                 @csrf
                 <template x-if="editingOperator">
                     <input type="hidden" name="_method" value="PUT">

@@ -5,21 +5,23 @@
 
 @extends($layout)
 
-@section('title', 'Pengaturan Profil - Little Joy Jakarta')
+@section('title', 'Pengaturan Profil')
 
 @section('content')
 <div class="{{ $isCustomer ? 'max-w-4xl mx-auto px-4 py-12' : 'space-y-6 w-full max-w-6xl' }} font-sans">
     
-    {{-- Header --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-            <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase bg-primary-soft text-primary-dark rounded-full mb-2">
-                Akun Pengguna
-            </span>
-            <h2 class="font-serif text-2xl font-bold text-primary">Pengaturan Profil</h2>
-            <p class="text-xs text-brandText-muted mt-1">Perbarui informasi dasar profil dan pengaturan kata sandi Anda.</p>
+    {{-- Header (Hanya untuk konsumen, karena Dashboard sudah menampilkan judul di Top Bar) --}}
+    @if($isCustomer)
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold tracking-wider uppercase bg-primary-soft text-primary-dark rounded-full mb-2">
+                    Akun Pengguna
+                </span>
+                <h2 class="font-serif text-2xl font-bold text-primary">Pengaturan Profil</h2>
+                <p class="text-xs text-brandText-muted mt-1">Perbarui informasi dasar profil dan pengaturan kata sandi Anda.</p>
+            </div>
         </div>
-    </div>
+    @endif
 
     {{-- Status Messages --}}
     @if (session('status') === 'profile-updated' || session('success'))
@@ -54,7 +56,7 @@
                 </div>
             </div>
             
-            <form method="post" action="{{ route('profile.update') }}" class="space-y-6">
+            <form method="post" action="{{ route('profile.update') }}" class="space-y-6" data-confirm="Apakah Anda yakin ingin menyimpan perubahan profil Anda?">
                 @csrf
                 @method('patch')
 
@@ -149,7 +151,7 @@
                 </div>
             </div>
             
-            <form method="post" action="{{ route('password.update') }}" class="space-y-6">
+            <form method="post" action="{{ route('password.update') }}" class="space-y-6" data-confirm="Apakah Anda yakin ingin memperbarui kata sandi Anda?">
                 @csrf
                 @method('put')
 

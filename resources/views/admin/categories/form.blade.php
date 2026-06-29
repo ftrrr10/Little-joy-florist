@@ -34,7 +34,7 @@
 
     {{-- Form Card --}}
     <div class="bg-white border border-brandOutline-soft/25 rounded-2xl p-8 shadow-sm reveal" data-delay="100">
-        <form action="{{ $isEditMode ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST" class="space-y-6">
+        <form action="{{ $isEditMode ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST" class="space-y-6" data-confirm="{{ $isEditMode ? 'Apakah Anda yakin ingin menyimpan perubahan kategori ini?' : 'Apakah Anda yakin ingin menambahkan kategori baru ini?' }}">
             @csrf
             @if($isEditMode)
                 @method('PUT')

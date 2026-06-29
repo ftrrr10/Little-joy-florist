@@ -264,7 +264,7 @@
             </div>
 
             {{-- Modal Form --}}
-            <form action="{{ route('operator.stock.adjust') }}" method="POST" class="p-6 space-y-4 font-sans text-xs">
+            <form action="{{ route('operator.stock.adjust') }}" method="POST" class="p-6 space-y-4 font-sans text-xs" data-confirm="Apakah Anda yakin ingin melakukan penyesuaian stok produk ini?">
                 @csrf
                 
                 <input type="hidden" name="product_id" :value="productId">

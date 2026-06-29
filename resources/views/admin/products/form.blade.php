@@ -43,7 +43,7 @@
 
     {{-- Form Wrapper --}}
     <div class="bg-white border border-brandOutline-soft/25 rounded-2xl p-8 shadow-sm reveal" data-delay="100">
-        <form action="{{ $isEditMode ? route('admin.products.update', $product->id) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form action="{{ $isEditMode ? route('admin.products.update', $product->id) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" data-confirm="{{ $isEditMode ? 'Apakah Anda yakin ingin menyimpan perubahan produk ini?' : 'Apakah Anda yakin ingin menambahkan produk baru ini?' }}">
             @csrf
             @if($isEditMode)
                 @method('PUT')

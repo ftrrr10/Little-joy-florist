@@ -358,7 +358,7 @@
                                 </div>
 
                                 <div x-show="rejectionMode" style="display: none;">
-                                    <form action="{{ route('operator.payments.verify', $order->order_number) }}" method="POST" class="space-y-3 p-3 bg-red-50/50 border border-red-100 rounded-xl">
+                                    <form action="{{ route('operator.payments.verify', $order->order_number) }}" method="POST" class="space-y-3 p-3 bg-red-50/50 border border-red-100 rounded-xl" data-confirm="Apakah Anda yakin ingin menolak pembayaran ini? Pelanggan akan diminta mengunggah ulang bukti transfer.">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
                                         <label for="rejection_note" class="block text-[10px] font-bold text-red-800 uppercase tracking-wider mb-1">

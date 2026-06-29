@@ -28,7 +28,7 @@
             </p>
         </div>
 
-        <form action="{{ route('checkout.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <form action="{{ route('checkout.store') }}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start" data-confirm="Apakah Anda yakin seluruh data pengiriman sudah benar dan ingin memproses pesanan ini?">
             @csrf
 
             {{-- Left Column: Checkout Form --}}

@@ -202,20 +202,6 @@
             </a>
         </div>
 
-        {{-- User Footer Summary --}}
-        <div class="p-4 border-t border-white/10 bg-black/20">
-            <div class="flex items-center gap-3">
-                <div class="h-9 w-9 rounded-full bg-white/10 text-white font-bold text-xs flex items-center justify-center ring-2 ring-white/20 p-0.5">
-                    {{ strtoupper(substr($user->name ?? 'A', 0, 1)) }}
-                </div>
-                <div class="flex-grow min-w-0">
-                    <p class="text-xs font-bold truncate text-white">{{ $user->name ?? '' }}</p>
-                    <span class="inline-block px-2 py-0.5 mt-0.5 text-[9px] font-bold tracking-wide uppercase bg-white/15 text-white rounded-md leading-none">
-                        {{ $isAdmin ? 'Store Manager' : 'Florist Operator' }}
-                    </span>
-                </div>
-            </div>
-        </div>
     </aside>
 
     {{-- Main Content Area --}}

@@ -17,6 +17,9 @@
         @yield('head')
     </head>
     <body class="font-sans antialiased bg-brandBackground text-brandText min-h-screen flex flex-col">
+        <!-- Global Top Loading Progress Bar -->
+        <div id="global-loading-bar" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-emerald-400 to-primary z-[9999] transition-all duration-300 w-0 opacity-0 pointer-events-none"></div>
+
         <!-- Toast Notification system with AlpineJS -->
         @if (session('success') || session('error') || session('warning') || session('info') || $errors->any())
             <div x-data="{ 
@@ -94,5 +97,218 @@
         @endif
 
         @yield('body')
+
+        <!-- Custom Confirmation Modal -->
+        <div 
+            id="custom-confirm-modal" 
+            class="fixed inset-0 z-[10000] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300"
+        >
+            <!-- Backdrop -->
+            <div id="confirm-modal-backdrop" class="absolute inset-0 bg-[#022C22]/35 backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
+            
+            <!-- Modal Card -->
+            <div 
+                id="confirm-modal-card" 
+                class="relative bg-white rounded-3xl p-6 shadow-2xl border border-brandOutline-soft/25 max-w-sm w-full transform scale-95 transition-all duration-300 opacity-0 font-sans"
+            >
+                <div class="text-center">
+                    <!-- Icon -->
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-[#E6F4EA] text-primary-dark mb-4">
+                        <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    
+                    <h3 class="font-serif text-base font-bold text-primary mb-2">Konfirmasi Tindakan</h3>
+                    <p id="confirm-modal-message" class="text-xs text-brandText-muted leading-relaxed mb-6">Apakah Anda yakin ingin menyimpan perubahan ini?</p>
+                    
+                    <!-- Actions -->
+                    <div class="flex items-center justify-center gap-3">
+                        <button 
+                            type="button" 
+                            id="confirm-modal-cancel"
+                            class="flex-1 px-4 py-2.5 border border-brandOutline hover:bg-gray-50 text-brandText-dark text-xs font-bold rounded-xl transition-all"
+                        >
+                            Batal
+                        </button>
+                        <button 
+                            type="button" 
+                            id="confirm-modal-confirm"
+                            class="flex-1 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+                        >
+                            Ya, Lanjutkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Page Transition and Form Submitting Loading Script -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const loadingBar = document.getElementById('global-loading-bar');
+                let loadingInterval;
+
+                // Confirm Modal Elements
+                const confirmModal = document.getElementById('custom-confirm-modal');
+                const confirmBackdrop = document.getElementById('confirm-modal-backdrop');
+                const confirmCard = document.getElementById('confirm-modal-card');
+                const confirmMessage = document.getElementById('confirm-modal-message');
+                const confirmCancelBtn = document.getElementById('confirm-modal-cancel');
+                const confirmConfirmBtn = document.getElementById('confirm-modal-confirm');
+                let onConfirmCallback = null;
+
+                function showConfirmModal(message, callback) {
+                    confirmMessage.textContent = message;
+                    onConfirmCallback = callback;
+
+                    confirmModal.classList.remove('pointer-events-none');
+                    confirmModal.classList.add('opacity-100');
+                    
+                    setTimeout(() => {
+                        confirmBackdrop.classList.add('opacity-100');
+                        confirmCard.classList.remove('scale-95', 'opacity-0');
+                        confirmCard.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                }
+
+                function hideConfirmModal() {
+                    confirmBackdrop.classList.remove('opacity-100');
+                    confirmCard.classList.remove('scale-100', 'opacity-100');
+                    confirmCard.classList.add('scale-95', 'opacity-0');
+                    
+                    setTimeout(() => {
+                        confirmModal.classList.add('pointer-events-none');
+                        confirmModal.classList.remove('opacity-100');
+                    }, 300);
+                }
+
+                confirmCancelBtn.addEventListener('click', hideConfirmModal);
+                confirmBackdrop.addEventListener('click', hideConfirmModal);
+                
+                confirmConfirmBtn.addEventListener('click', function () {
+                    hideConfirmModal();
+                    if (onConfirmCallback) {
+                        onConfirmCallback();
+                    }
+                });
+
+                function startLoading() {
+                    clearInterval(loadingInterval);
+                    loadingBar.style.width = '0%';
+                    loadingBar.style.opacity = '1';
+                    
+                    let width = 0;
+                    loadingInterval = setInterval(() => {
+                        if (width >= 90) {
+                            clearInterval(loadingInterval);
+                        } else {
+                            width += (90 - width) * 0.15;
+                            loadingBar.style.width = width + '%';
+                        }
+                    }, 100);
+                }
+
+                function stopLoading() {
+                    clearInterval(loadingInterval);
+                    loadingBar.style.width = '100%';
+                    setTimeout(() => {
+                        loadingBar.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingBar.style.width = '0%';
+                        }, 300);
+                    }, 200);
+                }
+
+                // 1. Page Transition: Trigger loading bar on link clicks
+                document.addEventListener('click', function (e) {
+                    const link = e.target.closest('a');
+                    if (!link) return;
+
+                    const href = link.getAttribute('href');
+                    const target = link.getAttribute('target');
+                    
+                    if (!href || 
+                        href.startsWith('#') || 
+                        href.startsWith('javascript:') || 
+                        target === '_blank' || 
+                        link.hasAttribute('download') ||
+                        e.ctrlKey || e.metaKey || e.shiftKey
+                    ) {
+                        return;
+                    }
+
+                    try {
+                        const url = new URL(href, window.location.href);
+                        if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
+                            startLoading();
+                        }
+                    } catch (err) {
+                        startLoading();
+                    }
+                });
+
+                // 2. Global Form Submission: Confirmation & Loading States
+                document.addEventListener('submit', function (e) {
+                    const form = e.target;
+                    
+                    // If the submit was already prevented, do nothing
+                    if (e.defaultPrevented) return;
+
+                    // If form has data-confirm, prompt the user using our custom modal
+                    if (form.hasAttribute('data-confirm') && form.dataset.confirmed !== 'true') {
+                        e.preventDefault();
+                        
+                        // Perform HTML5 form validation before showing modal
+                        if (form.checkValidity && !form.checkValidity()) {
+                            form.reportValidity();
+                            return;
+                        }
+
+                        const message = form.getAttribute('data-confirm');
+                        showConfirmModal(message, function () {
+                            form.dataset.confirmed = 'true';
+                            // Re-submit the form
+                            form.requestSubmit ? form.requestSubmit() : form.submit();
+                        });
+                        return;
+                    }
+
+                    // Trigger loading bar
+                    startLoading();
+
+                    // Find and disable submit button, showing loading state
+                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                    if (submitBtn) {
+                        // Delay slightly to allow browser form validation to run first
+                        setTimeout(() => {
+                            // If HTML5 validation fails, the form won't submit, but we check if it is still submitting
+                            if (form.checkValidity && !form.checkValidity()) {
+                                stopLoading();
+                                return;
+                            }
+                            
+                            submitBtn.disabled = true;
+                            submitBtn.dataset.originalHtml = submitBtn.innerHTML;
+                            
+                            // Check if button is small or large, adjust spinner
+                            submitBtn.innerHTML = `
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Memproses...</span>
+                            `;
+                            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                        }, 10);
+                    }
+                });
+
+                // Stop loading bar on page show (handles browser back/forward cache)
+                window.addEventListener('pageshow', function () {
+                    stopLoading();
+                });
+            });
+        </script>
     </body>
 </html>

@@ -67,6 +67,20 @@ class ReportController extends Controller
             ->limit(5)
             ->get();
 
+        $dailyRevenue = Order::whereIn('order_status', ['paid', 'processing', 'ready', 'shipped', 'completed'])
+            ->whereDate('created_at', '>=', $startDate)
+            ->whereDate('created_at', '<=', $endDate)
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(total) as revenue'))
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => Carbon::parse($item->date)->translatedFormat('d M'),
+                    'revenue' => (float) $item->revenue
+                ];
+            });
+
         return view('admin.reports.index', [
             'orders' => $orders,
             'filters' => [
@@ -80,6 +94,7 @@ class ReportController extends Controller
                 'total_revenue' => (float) $totalRevenue,
                 'total_items_sold' => (int) $totalItemsSold,
                 'best_sellers' => $bestSellers,
+                'daily_revenue' => $dailyRevenue,
             ]
         ]);
     }

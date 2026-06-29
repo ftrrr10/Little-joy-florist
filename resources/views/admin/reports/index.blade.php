@@ -204,8 +204,10 @@
                     Akumulasi transaksi berhasil
                 </p>
             </div>
-            <div class="p-3 bg-green-50 text-green-600 rounded-xl print:bg-transparent print:text-black">
-                <span class="text-xl font-bold font-serif">Rp</span>
+            <div class="p-3 bg-green-50 text-green-600 rounded-xl flex-shrink-0 print:bg-transparent print:text-black">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </div>
         </div>
 
@@ -222,8 +224,10 @@
                     Jumlah pesanan dalam filter
                 </p>
             </div>
-            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl print:bg-transparent print:text-black">
-                <span class="text-lg font-bold font-mono">#</span>
+            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl flex-shrink-0 print:bg-transparent print:text-black">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
             </div>
         </div>
 
@@ -240,8 +244,10 @@
                     Karangan bunga terdistribusi
                 </p>
             </div>
-            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl print:bg-transparent print:text-black">
-                <span class="text-lg font-serif">✿</span>
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl flex-shrink-0 print:bg-transparent print:text-black">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
             </div>
         </div>
 
@@ -259,7 +265,27 @@
                 </p>
             </div>
             <div class="p-3 bg-amber-50 text-amber-600 rounded-xl flex-shrink-0 print:bg-transparent print:text-black">
-                <span class="text-lg font-serif">★</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.969 0 1.371 1.24.588 1.81l-3.97 2.88a1 1 0 00-.364 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.971-2.88a1 1 0 00-1.176 0l-3.97 2.88c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.364-1.118l-3.97-2.88c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    {{-- Charts Section --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 reveal print:hidden" data-delay="120">
+        {{-- Revenue Line Chart --}}
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-brandOutline-soft/30 shadow-sm">
+            <h4 class="font-serif text-sm font-bold text-primary mb-4">Tren Omset Penjualan Harian</h4>
+            <div class="h-64">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        {{-- Best Sellers Doughnut Chart --}}
+        <div class="bg-white p-6 rounded-2xl border border-brandOutline-soft/30 shadow-sm">
+            <h4 class="font-serif text-sm font-bold text-primary mb-4">Proporsi Produk Terlaris</h4>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="bestSellersChart"></canvas>
             </div>
         </div>
     </div>
@@ -375,7 +401,9 @@
         {{-- Best Selling --}}
         <div class="bg-white p-6 rounded-2xl border border-brandOutline-soft/30 shadow-sm print:border-gray-200">
             <div class="flex items-center gap-2 pb-4 mb-4 border-b border-gray-100">
-                <span class="text-lg font-serif">★</span>
+                <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.969 0 1.371 1.24.588 1.81l-3.97 2.88a1 1 0 00-.364 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.971-2.88a1 1 0 00-1.176 0l-3.97 2.88c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.364-1.118l-3.97-2.88c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
                 <h4 class="font-serif text-base font-bold text-primary print:text-black">
                     Peringkat Rangkaian Bunga Terlaris
                 </h4>
@@ -449,4 +477,98 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Daily Revenue Chart
+        const dailyData = @json($summary['daily_revenue'] ?? []);
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        
+        const revenueLabels = dailyData.map(item => item.date);
+        const revenueValues = dailyData.map(item => item.revenue);
+
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueLabels.length > 0 ? revenueLabels : ['Tidak ada data'],
+                datasets: [{
+                    label: 'Omset (Rp)',
+                    data: revenueValues.length > 0 ? revenueValues : [0],
+                    borderColor: '#022C22',
+                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString('id-ID');
+                            },
+                            font: { size: 10 }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // 2. Best Sellers Chart
+        const bestSellersData = @json($summary['best_sellers'] ?? []);
+        const bestSellersCtx = document.getElementById('bestSellersChart').getContext('2d');
+
+        const bestLabels = bestSellersData.map(item => item.product_name);
+        const bestValues = bestSellersData.map(item => item.total_qty);
+
+        new Chart(bestSellersCtx, {
+            type: 'doughnut',
+            data: {
+                labels: bestLabels.length > 0 ? bestLabels : ['Tidak ada data'],
+                datasets: [{
+                    data: bestValues.length > 0 ? bestValues : [1],
+                    backgroundColor: [
+                        '#022C22', // Forest green
+                        '#10B981', // Emerald green
+                        '#F59E0B', // Amber
+                        '#3B82F6', // Blue
+                        '#6B7280'  // Gray
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 9 }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    });
+</script>
 @endsection
