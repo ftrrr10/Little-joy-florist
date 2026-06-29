@@ -66,6 +66,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Redirect old /profil route to /profile for all roles to prevent 403s
+    Route::get('/profil', function () {
+        return redirect()->route('profile.edit');
+    })->name('customer.profile');
 });
 
 /*
@@ -95,10 +100,6 @@ Route::middleware(['auth', 'role:customer,operator,admin'])->group(function () {
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/pesanan/{orderNumber}/pembayaran', [PaymentController::class, 'create'])->name('customer.payments.create');
     Route::post('/pesanan/{orderNumber}/pembayaran', [PaymentController::class, 'store'])->name('customer.payments.store');
-
-    Route::get('/profil', function () {
-        return view('customer.profile');
-    })->name('customer.profile');
 
     Route::get('/pesanan', [OrderController::class, 'index'])->name('customer.orders.index');
     Route::get('/pesanan/{orderNumber}', [OrderController::class, 'show'])->name('customer.orders.show');
