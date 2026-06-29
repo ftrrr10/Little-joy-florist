@@ -118,7 +118,7 @@ Jalankan perintah migrasi untuk membuat seluruh tabel database dan mengisinya de
 ```bash
 php artisan migrate:fresh --seed
 ```
-*Perintah ini akan secara otomatis membuat 10 tabel fisik utama dan menanamkan data 1 Administrator, 2 Operator, 5 Pelanggan, 5 Kategori, 20 Produk Bunga, serta beberapa pesanan awal, log histori, dan kartu stok mutasi.*
+*Perintah ini akan secara otomatis membuat 10 tabel fisik utama dan menanamkan data 1 Administrator, 2 Operator, 5 Pelanggan, 5 Kategori, 20 Produk Bunga, serta beberapa pesanan awal, log histori, dan kartu stok mutasi. Selain itu, sistem seeder secara otomatis menyalin gambar produk asli dari folder aset seeder dan membuat gambar struk bukti transfer BCA/Mandiri tiruan yang realistis di dalam penyimpanan lokal (`storage/app/public`) agar aplikasi langsung berfungsi dengan gambar yang lengkap tanpa perlu menyalin file secara manual.*
 
 ### Langkah 8: Kompilasi Aset Frontend (Vite)
 Jalankan build Vite untuk mengompilasi CSS dan JS untuk pertama kalinya:
@@ -169,6 +169,9 @@ Untuk menghindari kegagalan sistem saat pengujian atau demonstrasi, perhatikan b
     *   Jika pelanggan melakukan unggah ulang bukti transfer baru (misal karena bukti transfer pertama ditolak oleh operator), sistem secara otomatis menghapus berkas gambar bukti lama dari disk server untuk menghemat kapasitas penyimpanan.
 5.  **Penonaktifan Akun**:
     *   Admin dapat menonaktifkan status keaktifan pelanggan maupun operator (`is_active = false`). Pengguna dengan status tidak aktif akan ditolak login-nya oleh sistem secara otomatis dan sesinya langsung dihapus.
+6.  **Aset Gambar & Bukti Pembayaran Otomatis**:
+    *   Untuk memudahkan kolaborasi antar pengembang, seeder secara otomatis menyalin aset gambar produk yang tersimpan di `database/seeders/assets/products` ke dalam folder penyimpanan publik lokal (`storage/app/public/products`).
+    *   Jika gambar bukti transfer (`sample_proof.jpg`) belum tersedia di penyimpanan lokal, seeder akan mendeteksi ketersediaan ekstensi PHP GD dan secara otomatis menggambar struk transfer bank tiruan yang sangat realistis di folder `proofs`. Ini menjamin halaman verifikasi pembayaran pada panel operator tidak pernah menampilkan gambar pecah saat pertama kali dijalankan.
 
 ---
 
