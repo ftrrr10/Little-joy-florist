@@ -24,6 +24,94 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // A. Ensure public storage directories exist
+        $publicStoragePath = storage_path('app/public');
+        $productsDestDir = $publicStoragePath . '/products';
+        $proofsDestDir = $publicStoragePath . '/proofs';
+
+        if (!is_dir($productsDestDir)) {
+            mkdir($productsDestDir, 0755, true);
+        }
+        if (!is_dir($proofsDestDir)) {
+            mkdir($proofsDestDir, 0755, true);
+        }
+
+        // B. Copy product images from seeder assets to public storage
+        $productsSourceDir = database_path('seeders/assets/products');
+        if (is_dir($productsSourceDir)) {
+            $files = scandir($productsSourceDir);
+            foreach ($files as $file) {
+                if ($file !== '.' && $file !== '..') {
+                    copy($productsSourceDir . '/' . $file, $productsDestDir . '/' . $file);
+                }
+            }
+        }
+
+        // C. Generate or copy sample proof image
+        $proofSourceFile = database_path('seeders/assets/proofs/sample_proof.jpg');
+        $proofDestFile = $proofsDestDir . '/sample_proof.jpg';
+
+        if (!file_exists($proofDestFile)) {
+            if (file_exists($proofSourceFile)) {
+                copy($proofSourceFile, $proofDestFile);
+            } elseif (function_exists('imagecreatetruecolor')) {
+                // Generate beautiful dummy receipt using GD
+                $im = imagecreatetruecolor(600, 800);
+                $bg = imagecolorallocate($im, 243, 244, 246);
+                $white = imagecolorallocate($im, 255, 255, 255);
+                $green = imagecolorallocate($im, 5, 150, 105);
+                $darkText = imagecolorallocate($im, 31, 41, 55);
+                $grayText = imagecolorallocate($im, 107, 114, 128);
+                $lineColor = imagecolorallocate($im, 229, 231, 235);
+
+                imagefill($im, 0, 0, $bg);
+                imagefilledrectangle($im, 50, 50, 550, 750, $white);
+                imagerectangle($im, 50, 50, 550, 750, $lineColor);
+                imagefilledrectangle($im, 50, 50, 550, 150, $green);
+
+                imagestring($im, 5, 200, 75, "LITTLE JOY FLORIST", $white);
+                imagestring($im, 4, 210, 105, "M-TRANSFER BERHASIL", $white);
+
+                $y = 200;
+                $details = [
+                    "WAKTU TRANSAKSI" => date('d M Y H:i:s') . " WIB",
+                    "KE REKENING" => "BCA - 1234567890",
+                    "NAMA PENERIMA" => "LITTLE JOY FLORIST",
+                    "BANK PENGIRIM" => "MANDIRI",
+                    "NAMA PENGIRIM" => "CUSTOMER UTAMA",
+                    "JUMLAH" => "Rp 575.000,00",
+                    "BERITA" => "PESANAN #LJ-20260626-0002",
+                    "STATUS" => "TRANSAKSI BERHASIL"
+                ];
+
+                foreach ($details as $key => $val) {
+                    imagestring($im, 3, 80, $y, $key, $grayText);
+                    if ($key === "STATUS") {
+                        imagefilledrectangle($im, 80, $y + 20, 520, $y + 50, imagecolorallocate($im, 209, 250, 229));
+                        imagestring($im, 4, 180, $y + 27, $val, $green);
+                        $y += 60;
+                    } else if ($key === "JUMLAH") {
+                        imagestring($im, 5, 80, $y + 20, $val, $green);
+                        $y += 50;
+                    } else {
+                        imagestring($im, 4, 80, $y + 20, $val, $darkText);
+                        $y += 50;
+                    }
+                    imageline($im, 80, $y, 520, $y, $lineColor);
+                    $y += 20;
+                }
+
+                imagestring($im, 2, 160, 710, "Terima kasih telah berbelanja di Little Joy!", $grayText);
+                imagejpeg($im, $proofDestFile, 90);
+                
+                // Also save to source path for future commits
+                if (is_dir(dirname($proofSourceFile))) {
+                    imagejpeg($im, $proofSourceFile, 90);
+                }
+                imagedestroy($im);
+            }
+        }
+
         // 1. Seed Admin User
         User::factory()->create([
             'name' => 'Admin Little Joy',

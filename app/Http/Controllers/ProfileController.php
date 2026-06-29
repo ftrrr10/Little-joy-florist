@@ -18,7 +18,7 @@ class ProfileController extends Controller
      */
     public function edit(Request $request)
     {
-        return view('customer.profile', [
+        return view('profile.edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
         ]);

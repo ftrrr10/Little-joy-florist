@@ -114,7 +114,7 @@
                             @endif
 
                             <a
-                                href="{{ route('customer.profile') }}"
+                                href="{{ route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-brandText-muted hover:bg-brandSurface-low hover:text-brandText transition-colors"
                             >
                                 Profil Saya
@@ -213,7 +213,7 @@
                             </a>
                         @endif
                         <a
-                            href="{{ route('customer.profile') }}"
+                            href="{{ route('profile.edit') }}"
                             class="block py-2 text-base font-medium text-brandText-muted hover:text-primary"
                         >
                             Profil Saya

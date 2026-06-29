@@ -296,7 +296,7 @@
                         </div>
 
                         <a
-                            href="{{ route('customer.profile') }}"
+                            href="{{ route('profile.edit') }}"
                             class="px-4 py-2 text-xs text-[#064E3B] hover:bg-brandSurface-low transition-colors flex items-center gap-2 font-semibold"
                         >
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
